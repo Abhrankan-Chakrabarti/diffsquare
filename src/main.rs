@@ -5,7 +5,7 @@ use malachite::{
         rounding_modes::RoundingMode::Floor,
         num::{
             arithmetic::traits::{Square, FloorSqrt},
-            basic::traits::{One, Two},
+            basic::traits::{Zero, One, Two},
             conversion::{
                 string::options::ToSciOptions,
                 traits::{FromSciString, FromStringBase, ToSci},
@@ -74,6 +74,30 @@ fn verbose(iteration: &Integer, p: &Integer, q: &Integer, prec: u64) {
     scinot(q, prec);
 }
 
+static PRIMES: [u64; 10] = [3, 5, 7, 11, 13, 17, 19, 23, 29, 31];
+
+/// Function to check if a number is a perfect square
+fn sqr_perf(n: &Integer) -> bool {
+    for i in 0..10 {
+        let p = PRIMES[i];
+        let q = n % Integer::from(p);
+        if q == Integer::ZERO {
+            continue;
+        }
+        let mut nq = true;
+        for j in 1..p {
+            if Integer::from(j * j % p) == q {
+                nq = false;
+                break;
+            }
+        }
+        if nq {
+            return false;
+        }
+    }
+    return true;
+}
+
 /// Function to check if a number is a perfect square and return its square root
 fn sqrt_exact(n: &Integer) -> (bool, Integer) {
     let approx_sqrt = n.floor_sqrt();
@@ -127,7 +151,18 @@ fn difference_of_squares(n: &Integer, iteration: &mut Integer, prec: u64) -> Opt
 
     // Loop to find x^2 as a perfect square
     while &a < n {
-        let (is_exact_sqrt, x) = sqrt_exact(&x2);
+        let (is_exact_sqrt, x, is_perf_sqr);
+        let should_print = &*iteration % &_100k == Integer::ONE;
+        if should_print {
+            is_perf_sqr = true;
+        } else {
+            is_perf_sqr = sqr_perf(&x2);
+        }
+        if is_perf_sqr {
+            (is_exact_sqrt, x) = sqrt_exact(&x2);
+        } else {
+            (is_exact_sqrt, x) = (false, x2.clone());
+        }
         if is_exact_sqrt {
             // Factor n into p and q
             let (p, q) = factor(&a, &x, Integer::ONE, Integer::ONE);
@@ -138,7 +173,7 @@ fn difference_of_squares(n: &Integer, iteration: &mut Integer, prec: u64) -> Opt
         }
 
         // Print verbose info
-        if &*iteration % &_100k == Integer::ONE {
+        if should_print {
             let (p, q) = factor(&a, &x, Integer::ONE, Integer::ONE);
             verbose(iteration, &p, &q, prec);
             print!("\r");
