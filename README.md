@@ -14,7 +14,7 @@ GitHub Repository: [Abhrankan-Chakrabarti/diffsquare](https://github.com/Abhrank
 
 **Latest Commit:**
 
-Add difference of squares implementation with CLI and malachite support
+Add sqr_perf for efficient perfect square check to reduce sqrt calls
 
 ---
 
