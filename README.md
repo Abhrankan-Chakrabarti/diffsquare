@@ -14,7 +14,7 @@ GitHub Repository: [Abhrankan-Chakrabarti/diffsquare](https://github.com/Abhrank
 
 **Latest Commit:**
 
-Add sqr_perf for efficient perfect square check to reduce sqrt calls
+Add unit tests for `sqr_perf` perfect square function
 
 ---
 

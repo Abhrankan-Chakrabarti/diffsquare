@@ -5,7 +5,7 @@ use malachite::{
         rounding_modes::RoundingMode::Floor,
         num::{
             arithmetic::traits::{Square, FloorSqrt},
-            basic::traits::{Zero, One, Two},
+            basic::traits::{One, Two},
             conversion::{
                 string::options::ToSciOptions,
                 traits::{FromSciString, FromStringBase, ToSci},
@@ -14,6 +14,7 @@ use malachite::{
     },
 };
 use std::{env, io, io::Write};
+use diffsquare::utils::sqr_perf;
 
 fn input(prompt: &str) -> anyhow::Result<String> {
     print!("{}", prompt);
@@ -72,30 +73,6 @@ fn verbose(iteration: &Integer, p: &Integer, q: &Integer, prec: u64) {
     scinot(p, prec);
     print!(" q = ");
     scinot(q, prec);
-}
-
-static PRIMES: [u64; 10] = [3, 5, 7, 11, 13, 17, 19, 23, 29, 31];
-
-/// Function to check if a number is a perfect square
-fn sqr_perf(n: &Integer) -> bool {
-    for i in 0..10 {
-        let p = PRIMES[i];
-        let q = n % Integer::from(p);
-        if q == Integer::ZERO {
-            continue;
-        }
-        let mut nq = true;
-        for j in 1..p {
-            if Integer::from(j * j % p) == q {
-                nq = false;
-                break;
-            }
-        }
-        if nq {
-            return false;
-        }
-    }
-    return true;
 }
 
 /// Function to check if a number is a perfect square and return its square root
