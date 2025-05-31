@@ -14,7 +14,7 @@ GitHub Repository: [Abhrankan-Chakrabarti/diffsquare](https://github.com/Abhrank
 
 **Latest Commit:**
 
-Add unit tests for `sqr_perf` perfect square function
+Add package metadata to Cargo.toml
 
 ---
 
