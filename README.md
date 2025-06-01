@@ -14,7 +14,7 @@ GitHub Repository: [Abhrankan-Chakrabarti/diffsquare](https://github.com/Abhrank
 
 **Latest Commit:**
 
-Add package metadata to Cargo.toml
+Modularize code: move sqrt logic to sqrt.rs and factoring to factor.rs
 
 ---
 

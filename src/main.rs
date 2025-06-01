@@ -1,20 +1,10 @@
 use anyhow::anyhow;
 use malachite::{
     Integer,
-    base::{
-        rounding_modes::RoundingMode::Floor,
-        num::{
-            arithmetic::traits::{Square, FloorSqrt},
-            basic::traits::{One, Two},
-            conversion::{
-                string::options::ToSciOptions,
-                traits::{FromSciString, FromStringBase, ToSci},
-            },
-        },
-    },
+    base::num::conversion::traits::{FromSciString, FromStringBase},
 };
 use std::{env, io, io::Write};
-use diffsquare::utils::sqr_perf;
+use diffsquare::factor::difference_of_squares;
 
 fn input(prompt: &str) -> anyhow::Result<String> {
     print!("{}", prompt);
@@ -58,114 +48,17 @@ fn int(n: String) -> anyhow::Result<u64> {
     n.parse().map_err(|_| anyhow!("Unable to parse integer"))
 }
 
-fn scinot(n: &Integer, prec: u64) {
-    let mut options = ToSciOptions::default();
-    options.set_precision(prec);
-    options.set_rounding_mode(Floor);
-    options.set_force_exponent_plus_sign(true);
-    print!("{}", n.to_sci_with_options(options));
-}
-
-fn verbose(iteration: &Integer, p: &Integer, q: &Integer, prec: u64) {
-    print!("Iteration: ");
-    scinot(iteration, prec);
-    print!(" p = ");
-    scinot(p, prec);
-    print!(" q = ");
-    scinot(q, prec);
-}
-
-/// Function to check if a number is a perfect square and return its square root
-fn sqrt_exact(n: &Integer) -> (bool, Integer) {
-    let approx_sqrt = n.floor_sqrt();
-    if approx_sqrt.clone().square() == *n {
-        return (true, approx_sqrt);
-    }
-    return (false, approx_sqrt);
-}
-
-/// Function to compute ceil(sqrt(n))
-fn sqrt_ceil(n: &Integer) -> Integer {
-    let (is_exact_sqrt, k) = sqrt_exact(n);
-    if is_exact_sqrt {
-        return k;
-    }
-    return k + Integer::ONE;
-}
-
-fn factor(a: &Integer, x: &Integer, p: Integer, q: Integer) -> (Integer, Integer) {
-    return ((a - x) / p, (a + x) / q);
-}
-
 fn help(bin_path: String) {
-    println!("Usage: {bin_path} [options...]");
-    println!(" -n/--mod <modulus>: The modulus n to factor.");
-    println!(" -i/--iter <iteration>: Starting iteration point for the factorization.");
-    println!(" -p/--prec <precision>: Precision for verbose scientific notation output.");
-    println!(" -h/--help: Show this help message and exit.");
-    println!(" -v/--version: Show version number and exit.");
+    println!("Usage: {bin_path} [options]");
+    println!("  -n, --mod <modulus>      Number to factor (default: 1024-bit number).");
+    println!("  -i, --iter <iteration>   Starting iteration (prompted if not specified).");
+    println!("  -p, --prec <precision>   Precision for scientific notation output (prompted if not specified).");
+    println!("  -h, --help               Show help.");
+    println!("  -v, --version            Show version.");
 }
 
 fn version(bin_path: String) {
-    println!("diffsquare v0.1.0 ({bin_path})");
-}
-
-/// Perform the difference of squares method to find factors of n.
-/// Returns the factors if found, otherwise None.
-fn difference_of_squares(n: &Integer, iteration: &mut Integer, prec: u64) -> Option<(Integer, Integer)> {
-    // Start a at ceil(sqrt(n))
-    let mut a: Integer = sqrt_ceil(n);
-    let _100k: Integer = Integer::const_from_unsigned(100000);
-
-    if *iteration > Integer::ONE {
-        a += &*iteration - Integer::ONE; // Start from a specific iteration
-    } else if *iteration < Integer::ONE {
-        *iteration = Integer::ONE;
-    }
-
-    let mut x2: Integer = a.clone().square() - n;
-    let mut _2a: Integer = Integer::TWO * &a;
-
-    // Loop to find x^2 as a perfect square
-    while &a < n {
-        let (is_exact_sqrt, x, is_perf_sqr);
-        let should_print = &*iteration % &_100k == Integer::ONE;
-        if should_print {
-            is_perf_sqr = true;
-        } else {
-            is_perf_sqr = sqr_perf(&x2);
-        }
-        if is_perf_sqr {
-            (is_exact_sqrt, x) = sqrt_exact(&x2);
-        } else {
-            (is_exact_sqrt, x) = (false, x2.clone());
-        }
-        if is_exact_sqrt {
-            // Factor n into p and q
-            let (p, q) = factor(&a, &x, Integer::ONE, Integer::ONE);
-            println!();
-            verbose(iteration, &p, &q, prec);
-            println!();
-            return Some((p, q));
-        }
-
-        // Print verbose info
-        if should_print {
-            let (p, q) = factor(&a, &x, Integer::ONE, Integer::ONE);
-            verbose(iteration, &p, &q, prec);
-            print!("\r");
-            io::stdout().flush().unwrap();
-        }
-
-        // Increment and try again
-        a += Integer::ONE;
-        _2a += Integer::ONE;
-        x2 += &_2a;
-        _2a += Integer::ONE;
-        *iteration += Integer::ONE;
-    }
-
-    None
+    println!("diffsquare v0.1.1 ({bin_path})");
 }
 
 fn main() -> anyhow::Result<()> {
@@ -213,9 +106,9 @@ fn main() -> anyhow::Result<()> {
     )? + 1;
 
     if let Some((p, q)) = difference_of_squares(&n, &mut iteration, prec) {
-        println!("Factors found:");
-        println!("p = {}", p);
-        println!("q = {}", q);
+        println!("\n✅ Factors of n:");
+        println!("p =\n{}\n", p);
+        println!("q =\n{}\n", q);
     }
 
     Ok(())
