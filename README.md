@@ -14,7 +14,7 @@ GitHub Repository: [Abhrankan-Chakrabarti/diffsquare](https://github.com/Abhrank
 
 **Latest Commit:**
 
-Modularize code: move sqrt logic to sqrt.rs and factoring to factor.rs
+Bump to v0.1.2: Fix factorization logic for primes
 
 ---
 

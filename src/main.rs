@@ -58,7 +58,7 @@ fn help(bin_path: String) {
 }
 
 fn version(bin_path: String) {
-    println!("diffsquare v0.1.1 ({bin_path})");
+    println!("diffsquare v0.1.2 ({bin_path})");
 }
 
 fn main() -> anyhow::Result<()> {

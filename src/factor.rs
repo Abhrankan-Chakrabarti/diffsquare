@@ -37,12 +37,17 @@ pub fn factor(a: &Integer, x: &Integer, p: Integer, q: Integer) -> (Integer, Int
     return ((a - x) / p, (a + x) / q);
 }
 
-/// Perform the difference of squares method to find factors of n.
-/// Returns the factors if found, otherwise None.
+/// Attempts to factor the given number `n` using the difference of squares method.
+/// 
+/// # Arguments
+/// * `n` - The number to factor.
+/// * `iteration` - A mutable counter for the number of iterations performed.
+/// * `prec` - Controls how many digits of precision are used when displaying
+///   `iteration`, `p`, and `q` in scientific notation during verbose output.
 pub fn difference_of_squares(n: &Integer, iteration: &mut Integer, prec: u64) -> Option<(Integer, Integer)> {
     // Start a at ceil(sqrt(n))
     let mut a: Integer = sqrt_ceil(n);
-    let _1m: Integer = Integer::const_from_unsigned(1000000);
+    let print_interval: Integer = Integer::const_from_unsigned(1_000_000);
 
     if *iteration > Integer::ONE {
         a += &*iteration - Integer::ONE; // Start from a specific iteration
@@ -55,7 +60,7 @@ pub fn difference_of_squares(n: &Integer, iteration: &mut Integer, prec: u64) ->
 
     // Loop to find x^2 as a perfect square
     while &a < n {
-        let should_print = &*iteration % &_1m == Integer::ONE;
+        let should_print = &*iteration % &print_interval == Integer::ONE;
         let is_perf_sqr = if should_print {
             true
         } else {
@@ -70,9 +75,16 @@ pub fn difference_of_squares(n: &Integer, iteration: &mut Integer, prec: u64) ->
         if is_exact_sqrt {
             // Factor n into p and q
             let (p, q) = factor(&a, &x, Integer::ONE, Integer::ONE);
+
+            // Avoid trivial factorizations like (1, n) or (n, 1)
+            if p == Integer::ONE || q == Integer::ONE || &p == n || &q == n {
+                return None;
+            }
+
             println!();
             verbose(iteration, &p, &q, prec);
             println!();
+
             return Some((p, q));
         }
 

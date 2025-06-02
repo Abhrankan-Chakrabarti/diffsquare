@@ -1,6 +1,6 @@
 [package]
 name = "diffsquare"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Abhrankan Chakrabarti <abhrankan@gmail.com>"]
 description = "An efficient implementation of Fermat’s Difference of Squares method for factoring large integers using malachite for arbitrary-precision arithmetic."
@@ -14,5 +14,5 @@ categories = ["algorithms", "mathematics"]
 exclude = [".github/*", "target/*"]
 
 [dependencies]
-anyhow = "1.0.97"
-malachite = { version = "0.5.1", default-features = false, features = ["malachite-nz", "naturals_and_integers"] }
+anyhow = "1.0.98"
+malachite = { version = "0.6.0", default-features = false, features = ["malachite-nz", "naturals_and_integers"] }
