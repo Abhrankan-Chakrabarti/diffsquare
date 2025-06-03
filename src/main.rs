@@ -58,7 +58,7 @@ fn help(bin_path: String) {
 }
 
 fn version(bin_path: String) {
-    println!("diffsquare v0.1.2 ({bin_path})");
+    println!("{} v{} ({})", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"), bin_path);
 }
 
 fn main() -> anyhow::Result<()> {

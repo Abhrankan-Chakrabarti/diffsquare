@@ -14,7 +14,7 @@ GitHub Repository: [Abhrankan-Chakrabarti/diffsquare](https://github.com/Abhrank
 
 **Latest Commit:**
 
-Bump to v0.1.2: Fix factorization logic for primes
+Refactor: move Legendre symbol tables to dedicated module for modularity
 
 ---
 
