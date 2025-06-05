@@ -1,18 +1,23 @@
 [package]
 name = "diffsquare"
-version = "0.1.4"
+version = "0.2.0"
 edition = "2021"
 authors = ["Abhrankan Chakrabarti <abhrankan@gmail.com>"]
-description = "An efficient implementation of Fermat’s Difference of Squares method for factoring large integers using malachite for arbitrary-precision arithmetic."
+description = "A fast and efficient implementation of Fermat’s Difference of Squares method in Rust."
 license = "MIT"
 repository = "https://github.com/Abhrankan-Chakrabarti/diffsquare"
 readme = "README.md"
 documentation = "https://docs.rs/diffsquare"
 homepage = "https://github.com/Abhrankan-Chakrabarti/diffsquare"
 keywords = ["fermat", "factorization", "number-theory", "rust", "bigint"]
-categories = ["algorithms", "mathematics"]
+categories = [
+    "algorithms",
+    "mathematics",
+    "command-line-utilities",
+]
 exclude = [".github/*", "target/*"]
 
 [dependencies]
+clap = { version = "4.5", features = ["derive"] }
 anyhow = "1.0.98"
 malachite = { version = "0.6.0", default-features = false, features = ["malachite-nz", "naturals_and_integers"] }

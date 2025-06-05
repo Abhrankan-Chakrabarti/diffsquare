@@ -54,7 +54,7 @@ cargo build --release
 Run the binary using default values or provide custom arguments:
 
 ```bash
-# Using the default modulus
+# Provide modulus interactively
 diffsquare
 
 # Using a specific modulus (in decimal)
@@ -75,19 +75,19 @@ diffsquare -n 0xC0FFEE123456789 -i 1000 -p 25
 
 You can mix and match the flags:
 
-| Short Flag | Long Flag   | Description                                       |
-| ---------- | ----------- | ------------------------------------------------- |
-| `-n`       | `--mod`     | The modulus `n` to factor.                        |
-| `-i`       | `--iter`    | Starting iteration point for the factorization.   |
-| `-p`       | `--prec`    | Precision for verbose scientific notation output. |
-| `-h`       | `--help`    | Show the help message and exit.                   |
-| `-v`       | `--version` | Show the version number and exit.                 |
+| Short Flag | Long Flag   | Description                                                       |
+| ---------- | ----------- | ----------------------------------------------------------------- |
+| `-n`       | `--mod`     | Number to factor (hex prefix 0x or scientific notation supported) |
+| `-i`       | `--iter`    | Starting iteration value                                          |
+| `-p`       | `--prec`    | Precision for verbose scientific output                           |
+| `-h`       | `--help`    | Show help                                                         |
+| `-v`       | `--version` | Show version                                                      |
 
 ---
 
 **Latest Commit:**
 
-Add Legendre tests, update README with badges and install info, bump to v0.1.4
+feat: remove default modulus and migrate to clap for CLI parsing
 
 ---
 
