@@ -1,6 +1,6 @@
 [package]
 name = "diffsquare"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 authors = ["Abhrankan Chakrabarti <abhrankan@gmail.com>"]
 description = "A fast and efficient implementation of Fermat’s Difference of Squares method in Rust."

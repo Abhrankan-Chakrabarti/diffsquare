@@ -37,13 +37,19 @@ pub fn factor(a: &Integer, x: &Integer, p: Integer, q: Integer) -> (Integer, Int
     return ((a - x) / p, (a + x) / q);
 }
 
-/// Attempts to factor the given number `n` using the difference of squares method.
+/// Attempts to factor the given number `n` using Fermat’s Difference of Squares method.
+/// 
+/// This function iteratively searches for integers `x` and `y` such that `n = x² - y² = (x - y)(x + y)`.
+/// It returns a non-trivial factor pair `(p, q)` if found.
 /// 
 /// # Arguments
 /// * `n` - The number to factor.
-/// * `iteration` - A mutable counter for the number of iterations performed.
-/// * `prec` - Controls how many digits of precision are used when displaying
-///   `iteration`, `p`, and `q` in scientific notation during verbose output.
+/// * `iteration` - A mutable counter tracking the number of iterations attempted.
+/// * `prec` - Precision used when printing intermediate values in scientific notation (if not in quiet mode).
+/// * `quiet` - If `true`, suppresses all prompts and intermediate output.
+/// 
+/// # Returns
+/// `Some((p, q))` if a non-trivial factor pair is found, otherwise `None`.
 pub fn difference_of_squares(
     n: &Integer,
     iteration: &mut Integer,

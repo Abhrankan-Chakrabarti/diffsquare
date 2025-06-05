@@ -91,7 +91,7 @@ diffsquare -n 0xC0FFEE123456789 -i 1000 -p 25 -q
 
 ## Recent Update
 
-**feat**: Add quiet mode (`-q`) and show execution time after factorization
+Release v0.2.2
 
 ---
 

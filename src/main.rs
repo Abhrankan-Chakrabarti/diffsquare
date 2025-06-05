@@ -42,15 +42,12 @@ struct Args {
     version: Option<bool>,
 }
 
-fn input(prompt: &str, quiet: bool) -> Result<String> {
-    if quiet {
-        return Err(anyhow!("Missing required input in quiet mode"));
-    }
+fn input(prompt: &str) -> Result<String> {
     print!("{}", prompt);
     io::stdout().flush()?;
-    let mut n = String::new();
-    io::stdin().read_line(&mut n)?;
-    Ok(n.trim().to_string())
+    let mut s = String::new();
+    io::stdin().read_line(&mut s)?;
+    Ok(s.trim().to_string())
 }
 
 fn parse_bigint(s: &str) -> Result<Integer> {
@@ -66,17 +63,34 @@ fn main() -> Result<()> {
 
     let n = match args.modulus {
         Some(ref val) => parse_bigint(val)?,
-        None => parse_bigint(&input("Enter the modulus: ", args.quiet)?)?,
+        None => {
+            if args.quiet {
+                return Err(anyhow!("Missing required input -n in quiet mode"));
+            } else {
+                parse_bigint(&input("Enter the modulus: ")?)?
+            }
+        }
     };
 
-    let mut iter = match args.iter {
-        Some(ref val) => parse_bigint(val)?,
-        None => parse_bigint(&input("Enter the starting iteration: ", args.quiet)?)?,
+    let mut iter = if args.quiet {
+        match args.iter {
+            Some(ref val) => parse_bigint(val)?,
+            None => Integer::from(1),
+        }
+    } else {
+        match args.iter {
+            Some(ref val) => parse_bigint(val)?,
+            None => parse_bigint(&input("Enter the starting iteration: ")?)?,
+        }
     };
 
-    let prec = match args.prec {
-        Some(val) => val + 1,
-        None => input("Enter the verbose precision: ", args.quiet)?.parse::<u64>()? + 1,
+    let prec = if args.quiet {
+        args.prec.unwrap_or(0)
+    } else {
+        match args.prec {
+            Some(val) => val + 1,
+            None => input("Enter the verbose precision: ")?.parse::<u64>()? + 1,
+        }
     };
 
     let start_time = Instant::now();
