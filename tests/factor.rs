@@ -8,8 +8,9 @@ fn test_difference_of_squares() {
     let expected_rev = (Integer::from(101), Integer::from(59));
     let mut iter = Integer::from(1);
     let precision = 6;
+    let quiet = true;
 
-    let result = difference_of_squares(&n, &mut iter, precision);
+    let result = difference_of_squares(&n, &mut iter, precision, quiet);
 
     assert!(
         result == Some(expected) || result == Some(expected_rev),
@@ -23,8 +24,9 @@ fn test_difference_of_squares_prime() {
     let n = Integer::from(101);
     let mut iter = Integer::from(1);
     let precision = 6;
+    let quiet = true;
 
-    let result = difference_of_squares(&n, &mut iter, precision);
+    let result = difference_of_squares(&n, &mut iter, precision, quiet);
 
     assert!(
         result.is_none(),
@@ -38,8 +40,9 @@ fn test_difference_of_squares_one() {
     let n = Integer::from(1);
     let mut iter = Integer::from(1);
     let precision = 6;
+    let quiet = true;
 
-    let result = difference_of_squares(&n, &mut iter, precision);
+    let result = difference_of_squares(&n, &mut iter, precision, quiet);
 
     assert!(
         result.is_none(),

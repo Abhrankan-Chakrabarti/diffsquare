@@ -1,6 +1,6 @@
 [package]
 name = "diffsquare"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 authors = ["Abhrankan Chakrabarti <abhrankan@gmail.com>"]
 description = "A fast and efficient implementation of Fermat’s Difference of Squares method in Rust."
@@ -8,7 +8,7 @@ license = "MIT"
 repository = "https://github.com/Abhrankan-Chakrabarti/diffsquare"
 readme = "README.md"
 documentation = "https://docs.rs/diffsquare"
-homepage = "https://github.com/Abhrankan-Chakrabarti/diffsquare"
+homepage = "https://abhrankan-chakrabarti.github.io/diffsquare"
 keywords = ["fermat", "factorization", "number-theory", "rust", "bigint"]
 categories = [
     "algorithms",

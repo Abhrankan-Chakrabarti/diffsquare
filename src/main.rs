@@ -4,7 +4,7 @@ use malachite::{
     Integer,
     base::num::conversion::traits::{FromSciString, FromStringBase},
 };
-use std::io::{self, Write};
+use std::{io::{self, Write}, time::Instant};
 use diffsquare::factor::difference_of_squares;
 
 /// Fast and efficient Fermat factorization CLI
@@ -29,6 +29,10 @@ struct Args {
     #[arg(short, long, display_order = 3)]
     prec: Option<u64>,
 
+    /// Suppress prompts and intermediate output
+    #[arg(short, long, help = "Suppress prompts and verbose output", display_order = 4)]
+    quiet: bool,
+
     /// Show help
     #[arg(short = 'h', long = "help", action = ArgAction::Help, display_order = 100)]
     help: Option<bool>,
@@ -38,7 +42,10 @@ struct Args {
     version: Option<bool>,
 }
 
-fn input(prompt: &str) -> Result<String> {
+fn input(prompt: &str, quiet: bool) -> Result<String> {
+    if quiet {
+        return Err(anyhow!("Missing required input in quiet mode"));
+    }
     print!("{}", prompt);
     io::stdout().flush()?;
     let mut n = String::new();
@@ -59,23 +66,30 @@ fn main() -> Result<()> {
 
     let n = match args.modulus {
         Some(ref val) => parse_bigint(val)?,
-        None => parse_bigint(&input("Enter the modulus: ")?)?,
+        None => parse_bigint(&input("Enter the modulus: ", args.quiet)?)?,
     };
 
     let mut iter = match args.iter {
         Some(ref val) => parse_bigint(val)?,
-        None => parse_bigint(&input("Enter the starting iteration: ")?)?,
+        None => parse_bigint(&input("Enter the starting iteration: ", args.quiet)?)?,
     };
 
     let prec = match args.prec {
         Some(val) => val + 1,
-        None => input("Enter the verbose precision: ")?.parse::<u64>()? + 1,
+        None => input("Enter the verbose precision: ", args.quiet)?.parse::<u64>()? + 1,
     };
 
-    if let Some((p, q)) = difference_of_squares(&n, &mut iter, prec) {
+    let start_time = Instant::now();
+
+    if let Some((p, q)) = difference_of_squares(&n, &mut iter, prec, args.quiet) {
         println!("\n✅ Factors of n:\n\np =\n{}\n\nq =\n{}\n", p, q);
     } else {
         println!("❌ Failed to factor the given number.");
+    }
+
+    let duration = start_time.elapsed();
+    if !args.quiet {
+        println!("⏱️  Execution time: {:?}", duration);
     }
 
     Ok(())

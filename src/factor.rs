@@ -44,13 +44,17 @@ pub fn factor(a: &Integer, x: &Integer, p: Integer, q: Integer) -> (Integer, Int
 /// * `iteration` - A mutable counter for the number of iterations performed.
 /// * `prec` - Controls how many digits of precision are used when displaying
 ///   `iteration`, `p`, and `q` in scientific notation during verbose output.
-pub fn difference_of_squares(n: &Integer, iteration: &mut Integer, prec: u64) -> Option<(Integer, Integer)> {
-    // Start a at ceil(sqrt(n))
+pub fn difference_of_squares(
+    n: &Integer,
+    iteration: &mut Integer,
+    prec: u64,
+    quiet: bool
+) -> Option<(Integer, Integer)> {
     let mut a: Integer = sqrt_ceil(n);
     let print_interval: Integer = Integer::const_from_unsigned(1_000_000);
 
     if *iteration > Integer::ONE {
-        a += &*iteration - Integer::ONE; // Start from a specific iteration
+        a += &*iteration - Integer::ONE;
     } else if *iteration < Integer::ONE {
         *iteration = Integer::ONE;
     }
@@ -58,7 +62,6 @@ pub fn difference_of_squares(n: &Integer, iteration: &mut Integer, prec: u64) ->
     let mut x2: Integer = a.clone().square() - n;
     let mut _2a: Integer = Integer::TWO * &a;
 
-    // Loop to find x^2 as a perfect square
     while &a < n {
         let should_print = &*iteration % &print_interval == Integer::ONE;
         let is_perf_sqr = if should_print {
@@ -72,31 +75,30 @@ pub fn difference_of_squares(n: &Integer, iteration: &mut Integer, prec: u64) ->
         } else {
             (false, x2.clone())
         };
+
         if is_exact_sqrt {
-            // Factor n into p and q
             let (p, q) = factor(&a, &x, Integer::ONE, Integer::ONE);
 
-            // Avoid trivial factorizations like (1, n) or (n, 1)
             if p == Integer::ONE || q == Integer::ONE || &p == n || &q == n {
                 return None;
             }
 
-            println!();
-            verbose(iteration, &p, &q, prec);
-            println!();
+            if !quiet {
+                println!();
+                verbose(iteration, &p, &q, prec);
+                println!();
+            }
 
             return Some((p, q));
         }
 
-        // Print verbose info
-        if should_print {
+        if should_print && !quiet {
             let (p, q) = factor(&a, &x, Integer::ONE, Integer::ONE);
             verbose(iteration, &p, &q, prec);
             print!("\r");
             io::stdout().flush().unwrap();
         }
 
-        // Increment and try again
         a += Integer::ONE;
         _2a += Integer::ONE;
         x2 += &_2a;
