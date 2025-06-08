@@ -5,6 +5,7 @@ use malachite::{
     base::num::conversion::traits::{FromSciString, FromStringBase},
     Integer,
 };
+use serde::Serialize;
 use std::{
     io::{self, Write},
     process::exit,
@@ -13,9 +14,15 @@ use std::{
 
 /// Fast and efficient Fermat factorization CLI
 #[derive(Parser)]
-#[command( version = env!("CARGO_PKG_VERSION"), disable_help_flag = true, disable_version_flag = true, about, long_about = None )]
+#[command(
+    version = env!("CARGO_PKG_VERSION"),
+    disable_help_flag = true,
+    disable_version_flag = true,
+    about,
+    long_about = None
+)]
 struct Args {
-    /// Number to factor (hex prefix 0x or scientific notation supported)
+    /// Number to factor (supports `0x` for hex, or scientific notation)
     #[arg(short = 'n', long = "mod", display_order = 1)]
     modulus: Option<String>,
 
@@ -31,10 +38,18 @@ struct Args {
     #[arg(
         short,
         long,
-        help = "Suppress prompts and verbose output",
+        help = "Suppress prompts and intermediate output",
         display_order = 4
     )]
     quiet: bool,
+
+    /// Output result in JSON format
+    #[arg(
+        long,
+        help = "Print result as JSON (suppresses all other output)",
+        display_order = 5
+    )]
+    json: bool,
 
     /// Show help
     #[arg(short = 'h', long = "help", action = ArgAction::Help, display_order = 100)]
@@ -43,6 +58,15 @@ struct Args {
     /// Show version
     #[arg(short = 'v', long = "version", action = ArgAction::Version, display_order = 101)]
     version: Option<bool>,
+}
+
+#[derive(Serialize)]
+struct JsonResult {
+    modulus: String,
+    factor_1: String,
+    factor_2: String,
+    iterations: String,
+    time_ms: u128,
 }
 
 fn input(prompt: &str) -> Result<String> {
@@ -67,9 +91,9 @@ fn main() -> Result<()> {
     let n = match args.modulus {
         Some(ref val) => parse_bigint(val)?,
         None => {
-            if args.quiet {
+            if args.quiet || args.json {
                 return Err(anyhow!(
-                    "❌ Missing required argument: -n / --mod must be provided in quiet mode"
+                    "❌ Missing required argument: -n / --mod must be provided in quiet or JSON mode"
                 ));
             } else {
                 parse_bigint(&input("Enter the modulus: ")?)?
@@ -80,7 +104,7 @@ fn main() -> Result<()> {
     let mut iter = match args.iter {
         Some(ref val) => parse_bigint(val)?,
         None => {
-            if args.quiet {
+            if args.quiet || args.json {
                 Integer::from(1)
             } else {
                 parse_bigint(&input("Enter the starting iteration: ")?)?
@@ -88,27 +112,45 @@ fn main() -> Result<()> {
         }
     };
 
-    let prec = if args.quiet {
+    let prec = if args.quiet || args.json {
         args.prec.unwrap_or(0)
     } else {
         match args.prec {
-            Some(val) => val + 1, // Add 1 to include the leading digit in scientific notation
-            None => input("Enter the verbose precision: ")?.parse::<u64>()? + 1, // Add 1 as above
+            Some(val) => val + 1,
+            None => input("Enter the verbose precision: ")?.parse::<u64>()? + 1,
         }
     };
 
     let start_time = Instant::now();
 
-    if let Some((p, q)) = difference_of_squares(&n, &mut iter, prec, args.quiet) {
-        println!("\n✅ Factors of n:\n\np =\n{}\n\nq =\n{}\n", p, q);
-    } else {
-        eprintln!("❌ Failed to factor the given number.");
-        exit(1);
-    }
+    if let Some((p, q)) = difference_of_squares(&n, &mut iter, prec, args.quiet || args.json) {
+        let duration = start_time.elapsed();
 
-    let duration = start_time.elapsed();
-    if !args.quiet {
-        println!("⏱️  Execution time: {:?}", duration);
+        if args.json {
+            let result = JsonResult {
+                modulus: n.to_string(),
+                factor_1: p.to_string(),
+                factor_2: q.to_string(),
+                iterations: iter.to_string(),
+                time_ms: duration.as_millis(),
+            };
+            println!("{}", serde_json::to_string_pretty(&result)?);
+        } else {
+            println!("\n✅ Factors of n:\n\np =\n{}\n\nq =\n{}\n", p, q);
+            if !args.quiet {
+                println!("⏱️  Execution time: {:?}", duration);
+            }
+        }
+    } else {
+        if args.json {
+            eprintln!(
+                "{{\n  \"modulus\": \"{}\",\n  \"error\": \"Factorization failed\"\n}}",
+                n
+            );
+        } else {
+            eprintln!("❌ Failed to factor the given number.");
+        }
+        exit(1);
     }
 
     Ok(())

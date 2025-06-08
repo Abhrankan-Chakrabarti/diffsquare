@@ -1,3 +1,19 @@
+## [v0.3.0] - 09-06-2025
+
+### Added
+
+* `--json` flag: output factorization results as JSON (suppresses all other output).
+  * Includes `"modulus"`, `"p"`, and `"q"` fields.
+  * Outputs a JSON error message if factorization fails.
+  * Designed for scripting, automation, and programmatic integration.
+
+### Changed
+
+* Suppressed execution time and verbose output when `--json` is active.
+* Improved internal branching logic for mutually exclusive quiet and JSON modes.
+
+---
+
 ## [v0.2.3] - 08-06-2025
 
 ### Changed

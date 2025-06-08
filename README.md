@@ -74,6 +74,9 @@ diffsquare -n 0xABCD1234 -p 30
 
 # 🔹 Combine all options and suppress output (precision not required in quiet mode)
 diffsquare -n 0xCAFED00D1234 -i 50000 -q
+
+# 🔹 JSON output for scripting and automation
+diffsquare -n 0xC0FFEE123456789 --json
 ```
 
 ### Command-Line Flags
@@ -84,14 +87,15 @@ diffsquare -n 0xCAFED00D1234 -i 50000 -q
 | `-i`  | `--iter`    | Starting iteration value                                         |
 | `-p`  | `--prec`    | Precision for verbose scientific output                          |
 | `-q`  | `--quiet`   | Suppress prompts and intermediate output                         |
-| `-h`  | `--help`    | Show help message                                                |
+|       | `--json`    | Print result as JSON (suppresses all other output)               |
+| `-h`  | `--help`    | Show help                                                        |
 | `-v`  | `--version` | Show version                                                     |
 
 ---
 
 ## Recent Update
 
-v0.2.3: Refine CLI experience, prompt behavior, and help messages
+feat: add JSON output mode (--json)
 
 ---
 
