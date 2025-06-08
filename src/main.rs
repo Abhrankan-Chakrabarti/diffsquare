@@ -1,21 +1,19 @@
+use anyhow::{anyhow, Result};
 use clap::{ArgAction, Parser};
-use anyhow::{Result, anyhow};
-use malachite::{
-    Integer,
-    base::num::conversion::traits::{FromSciString, FromStringBase},
-};
-use std::{io::{self, Write}, time::Instant};
 use diffsquare::factor::difference_of_squares;
+use malachite::{
+    base::num::conversion::traits::{FromSciString, FromStringBase},
+    Integer,
+};
+use std::{
+    io::{self, Write},
+    process::exit,
+    time::Instant,
+};
 
 /// Fast and efficient Fermat factorization CLI
 #[derive(Parser)]
-#[command(
-    version = env!("CARGO_PKG_VERSION"),
-    disable_help_flag = true,
-    disable_version_flag = true,
-    about,
-    long_about = None
-)]
+#[command( version = env!("CARGO_PKG_VERSION"), disable_help_flag = true, disable_version_flag = true, about, long_about = None )]
 struct Args {
     /// Number to factor (hex prefix 0x or scientific notation supported)
     #[arg(short = 'n', long = "mod", display_order = 1)]
@@ -30,7 +28,12 @@ struct Args {
     prec: Option<u64>,
 
     /// Suppress prompts and intermediate output
-    #[arg(short, long, help = "Suppress prompts and verbose output", display_order = 4)]
+    #[arg(
+        short,
+        long,
+        help = "Suppress prompts and verbose output",
+        display_order = 4
+    )]
     quiet: bool,
 
     /// Show help
@@ -65,22 +68,23 @@ fn main() -> Result<()> {
         Some(ref val) => parse_bigint(val)?,
         None => {
             if args.quiet {
-                return Err(anyhow!("Missing required input -n in quiet mode"));
+                return Err(anyhow!(
+                    "❌ Missing required argument: -n / --mod must be provided in quiet mode"
+                ));
             } else {
                 parse_bigint(&input("Enter the modulus: ")?)?
             }
         }
     };
 
-    let mut iter = if args.quiet {
-        match args.iter {
-            Some(ref val) => parse_bigint(val)?,
-            None => Integer::from(1),
-        }
-    } else {
-        match args.iter {
-            Some(ref val) => parse_bigint(val)?,
-            None => parse_bigint(&input("Enter the starting iteration: ")?)?,
+    let mut iter = match args.iter {
+        Some(ref val) => parse_bigint(val)?,
+        None => {
+            if args.quiet {
+                Integer::from(1)
+            } else {
+                parse_bigint(&input("Enter the starting iteration: ")?)?
+            }
         }
     };
 
@@ -88,8 +92,8 @@ fn main() -> Result<()> {
         args.prec.unwrap_or(0)
     } else {
         match args.prec {
-            Some(val) => val + 1,
-            None => input("Enter the verbose precision: ")?.parse::<u64>()? + 1,
+            Some(val) => val + 1, // Add 1 to include the leading digit in scientific notation
+            None => input("Enter the verbose precision: ")?.parse::<u64>()? + 1, // Add 1 as above
         }
     };
 
@@ -98,7 +102,8 @@ fn main() -> Result<()> {
     if let Some((p, q)) = difference_of_squares(&n, &mut iter, prec, args.quiet) {
         println!("\n✅ Factors of n:\n\np =\n{}\n\nq =\n{}\n", p, q);
     } else {
-        println!("❌ Failed to factor the given number.");
+        eprintln!("❌ Failed to factor the given number.");
+        exit(1);
     }
 
     let duration = start_time.elapsed();

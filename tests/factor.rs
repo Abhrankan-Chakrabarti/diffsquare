@@ -1,5 +1,5 @@
-use malachite::Integer;
 use diffsquare::factor::difference_of_squares;
+use malachite::Integer;
 
 #[test]
 fn test_difference_of_squares() {
@@ -44,9 +44,5 @@ fn test_difference_of_squares_one() {
 
     let result = difference_of_squares(&n, &mut iter, precision, quiet);
 
-    assert!(
-        result.is_none(),
-        "Expected no factorization for {}",
-        n
-    );
+    assert!(result.is_none(), "Expected no factorization for {}", n);
 }

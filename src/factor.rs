@@ -1,20 +1,16 @@
+use crate::sqrt::{is_probably_square, sqrt_ceil, sqrt_exact};
 use malachite::{
-    Integer,
     base::{
-        rounding_modes::RoundingMode::Floor,
         num::{
             arithmetic::traits::Square,
             basic::traits::{One, Two},
-            conversion::{
-                string::options::ToSciOptions,
-                traits::ToSci,
-            },
+            conversion::{string::options::ToSciOptions, traits::ToSci},
         },
+        rounding_modes::RoundingMode::Floor,
     },
+    Integer,
 };
 use std::{io, io::Write};
-use crate::sqrt::{sqrt_exact, sqrt_ceil, is_probably_square};
-
 
 pub fn scinot(n: &Integer, prec: u64) {
     let mut options = ToSciOptions::default();
@@ -38,23 +34,23 @@ pub fn factor(a: &Integer, x: &Integer, p: Integer, q: Integer) -> (Integer, Int
 }
 
 /// Attempts to factor the given number `n` using Fermat’s Difference of Squares method.
-/// 
+///
 /// This function iteratively searches for integers `x` and `y` such that `n = x² - y² = (x - y)(x + y)`.
 /// It returns a non-trivial factor pair `(p, q)` if found.
-/// 
+///
 /// # Arguments
 /// * `n` - The number to factor.
 /// * `iteration` - A mutable counter tracking the number of iterations attempted.
 /// * `prec` - Precision used when printing intermediate values in scientific notation (if not in quiet mode).
 /// * `quiet` - If `true`, suppresses all prompts and intermediate output.
-/// 
+///
 /// # Returns
 /// `Some((p, q))` if a non-trivial factor pair is found, otherwise `None`.
 pub fn difference_of_squares(
     n: &Integer,
     iteration: &mut Integer,
     prec: u64,
-    quiet: bool
+    quiet: bool,
 ) -> Option<(Integer, Integer)> {
     let mut a: Integer = sqrt_ceil(n);
     let print_interval: Integer = Integer::const_from_unsigned(1_000_000);

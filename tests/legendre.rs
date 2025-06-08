@@ -19,13 +19,9 @@ fn test_legendre_quadratic_residue() {
             let residue = (a * a) % p;
             let chi = table[residue as usize];
             assert_eq!(
-                chi,
-                1,
+                chi, 1,
                 "a = {}, a^2 mod {} = {} should be quadratic residue (χ = {})",
-                a,
-                p,
-                residue,
-                chi
+                a, p, residue, chi
             );
         }
     }

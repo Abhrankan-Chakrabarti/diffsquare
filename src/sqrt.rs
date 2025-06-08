@@ -1,7 +1,7 @@
-use malachite::Integer;
-use malachite::base::num::conversion::traits::WrappingFrom;
-use malachite::base::num::arithmetic::traits::{FloorSqrt, CeilingSqrt, Square};
 use crate::legendre::LEGENDRE_TABLES;
+use malachite::base::num::arithmetic::traits::{CeilingSqrt, FloorSqrt, Square};
+use malachite::base::num::conversion::traits::WrappingFrom;
+use malachite::Integer;
 
 /// Check if `n` is a perfect square and return a tuple `(is_square, sqrt)`.
 ///

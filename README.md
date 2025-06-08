@@ -52,28 +52,28 @@ cargo build --release
 
 ---
 
-## Usage Examples
+## 🔧 Usage Examples
 
-You can run `diffsquare` interactively or provide flags for automation:
+Run `diffsquare` interactively or use flags for automation:
 
 ```bash
-# Fully interactive: enter modulus, iteration, and precision when prompted
+# 🔹 Fully interactive: prompts for modulus, iteration, and precision
 diffsquare
 
-# With a specific modulus (decimal)
-diffsquare -n 17976931348623159...
+# 🔹 Provide a decimal modulus
+diffsquare -n 17976931348623159077293051907890247336179769789423065727343008115
 
-# With a hexadecimal modulus
-diffsquare -n 0xDEADBEEF1234567890
+# 🔹 Provide a hexadecimal modulus
+diffsquare -n 0xDEADBEEFCAFEBABE1234567890
 
-# Specify starting iteration
-diffsquare -i 1000000
+# 🔹 Specify starting iteration (modulus still required)
+diffsquare -n 0xC0FFEE123456789 -i 1000000
 
-# Use custom precision for scientific notation
-diffsquare -p 30
+# 🔹 Use custom precision for verbose scientific output
+diffsquare -n 0xABCD1234 -p 30
 
-# All options combined
-diffsquare -n 0xC0FFEE123456789 -i 1000 -p 25 -q
+# 🔹 Combine all options and suppress output (precision not required in quiet mode)
+diffsquare -n 0xCAFED00D1234 -i 50000 -q
 ```
 
 ### Command-Line Flags
@@ -91,7 +91,7 @@ diffsquare -n 0xC0FFEE123456789 -i 1000 -p 25 -q
 
 ## Recent Update
 
-Release v0.2.2
+v0.2.3: Refine CLI experience, prompt behavior, and help messages
 
 ---
 
