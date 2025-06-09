@@ -1,8 +1,30 @@
-## [v0.3.0] - 09-06-2025
+## \[v0.3.1] - 10-06-2025
+
+### Added
+
+* `--time-only` flag: print **only** execution time after successful factorization.
+
+  * Does **not** show factors or prompts.
+  * Designed for **benchmarking and performance testing**.
+  * Mutually exclusive with `--json`.
+
+### Behavior Comparison
+
+| Mode          | Prompts | Shows Factors | Shows Time | Use Case                 |
+| ------------- | ------- | ------------- | ---------- | ------------------------ |
+| Default       | ✅       | ✅             | ✅          | General purpose          |
+| `--quiet`     | ❌       | ✅             | ❌          | Clean CLI output         |
+| `--json`      | ❌       | ✅ (JSON)      | ✅ (JSON)   | Scriptable automation    |
+| `--time-only` | ❌       | ❌             | ✅          | Performance benchmarking |
+
+---
+
+## \[v0.3.0] - 09-06-2025
 
 ### Added
 
 * `--json` flag: output factorization results as JSON (suppresses all other output).
+
   * Includes `"modulus"`, `"p"`, and `"q"` fields.
   * Outputs a JSON error message if factorization fails.
   * Designed for scripting, automation, and programmatic integration.
@@ -14,11 +36,12 @@
 
 ---
 
-## [v0.2.3] - 08-06-2025
+## \[v0.2.3] - 08-06-2025
 
 ### Changed
 
 * Refined CLI experience:
+
   * Improved help messages, usage examples, and argument prompts.
   * More intuitive fallback behavior when partial arguments are provided.
   * Clean separation of prompt logic—interactive and quiet modes now behave more predictably.
@@ -26,7 +49,7 @@
 
 ---
 
-## [v0.2.2] - 07-06-2025
+## \[v0.2.2] - 07-06-2025
 
 ### Changed
 
@@ -40,15 +63,16 @@
 
 ---
 
-## [v0.2.1] - 06-06-2025
+## \[v0.2.1] - 06-06-2025
 
 * Added quiet mode (`-q`, `--quiet`)
 * Show execution time after factorization
 
 ---
 
-## [v0.2.0] - 05-06-2025
+## \[v0.2.0] - 05-06-2025
 
 * Removed default modulus value; now prompted interactively if not provided via `-n` / `--mod`
 * Introduced `clap` for structured and user-friendly command-line argument parsing
 * Updated README usage examples to reflect removal of default modulus and clarify argument use
+

@@ -13,11 +13,14 @@ This project is authored by [Abhrankan Chakrabarti](https://github.com/Abhrankan
 
 ### Key Features
 
-* Support for both decimal and hexadecimal input formats.
+* Efficient Fermat's Difference of Squares factorization.
+* Support for decimal, hexadecimal, and scientific notation input.
 * Command-line interface with interactive fallback.
-* Optional control over iteration starting point and scientific precision.
-* Verbose output in scientific notation for readability of large numbers.
-* Quiet mode (`-q`) to suppress prompts and reduce output.
+* Quiet mode (`-q`) for suppressing prompts and clean output.
+* JSON output mode (`--json`) for scripting and automation.
+* `--time-only` flag for displaying only the execution time (useful for benchmarking).
+* Optional control over iteration starting point and precision.
+* Scientific notation used in verbose mode for large integer readability.
 * Execution time displayed after successful factorization.
 
 > GitHub Repository: [Abhrankan-Chakrabarti/diffsquare](https://github.com/Abhrankan-Chakrabarti/diffsquare)
@@ -77,25 +80,29 @@ diffsquare -n 0xCAFED00D1234 -i 50000 -q
 
 # 🔹 JSON output for scripting and automation
 diffsquare -n 0xC0FFEE123456789 --json
+
+# 🔹 Show only execution time (no output of factors)
+diffsquare -n 0xCAFED00D1234 --time-only
 ```
 
 ### Command-Line Flags
 
-| Short | Long        | Description                                                      |
-| ----- | ----------- | ---------------------------------------------------------------- |
-| `-n`  | `--mod`     | Number to factor (supports `0x` for hex, or scientific notation) |
-| `-i`  | `--iter`    | Starting iteration value                                         |
-| `-p`  | `--prec`    | Precision for verbose scientific output                          |
-| `-q`  | `--quiet`   | Suppress prompts and intermediate output                         |
-|       | `--json`    | Print result as JSON (suppresses all other output)               |
-| `-h`  | `--help`    | Show help                                                        |
-| `-v`  | `--version` | Show version                                                     |
+| Short | Long          | Description                                                      |
+| ----- | ------------- | ---------------------------------------------------------------- |
+| `-n`  | `--mod`       | Number to factor (supports `0x` for hex, or scientific notation) |
+| `-i`  | `--iter`      | Starting iteration value                                         |
+| `-p`  | `--prec`      | Precision for verbose scientific output                          |
+| `-q`  | `--quiet`     | Suppress prompts and intermediate output                         |
+|       | `--json`      | Print result as JSON (suppresses all other output)               |
+|       | `--time-only` | Display only the execution time (useful for benchmarking)        |
+| `-h`  | `--help`      | Show help                                                        |
+| `-v`  | `--version`   | Show version                                                     |
 
 ---
 
-## Recent Update
+## Recent Update – v0.3.1
 
-feat: add JSON output mode (--json)
+✅ **New:** `--time-only` flag for displaying only the execution time (useful for benchmarking).
 
 ---
 

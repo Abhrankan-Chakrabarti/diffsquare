@@ -51,6 +51,14 @@ struct Args {
     )]
     json: bool,
 
+    /// Show only execution time
+    #[arg(
+        long,
+        help = "Display only the execution time (useful for benchmarking)",
+        display_order = 6
+    )]
+    time_only: bool,
+
     /// Show help
     #[arg(short = 'h', long = "help", action = ArgAction::Help, display_order = 100)]
     help: Option<bool>,
@@ -91,9 +99,9 @@ fn main() -> Result<()> {
     let n = match args.modulus {
         Some(ref val) => parse_bigint(val)?,
         None => {
-            if args.quiet || args.json {
+            if args.quiet || args.json || args.time_only {
                 return Err(anyhow!(
-                    "❌ Missing required argument: -n / --mod must be provided in quiet or JSON mode"
+                    "❌ Missing required argument: -n / --mod must be provided in quiet, JSON, or time-only mode"
                 ));
             } else {
                 parse_bigint(&input("Enter the modulus: ")?)?
@@ -104,7 +112,7 @@ fn main() -> Result<()> {
     let mut iter = match args.iter {
         Some(ref val) => parse_bigint(val)?,
         None => {
-            if args.quiet || args.json {
+            if args.quiet || args.json || args.time_only {
                 Integer::from(1)
             } else {
                 parse_bigint(&input("Enter the starting iteration: ")?)?
@@ -112,7 +120,7 @@ fn main() -> Result<()> {
         }
     };
 
-    let prec = if args.quiet || args.json {
+    let prec = if args.quiet || args.json || args.time_only {
         args.prec.unwrap_or(0)
     } else {
         match args.prec {
@@ -123,7 +131,12 @@ fn main() -> Result<()> {
 
     let start_time = Instant::now();
 
-    if let Some((p, q)) = difference_of_squares(&n, &mut iter, prec, args.quiet || args.json) {
+    if let Some((p, q)) = difference_of_squares(
+        &n,
+        &mut iter,
+        prec,
+        args.quiet || args.json || args.time_only,
+    ) {
         let duration = start_time.elapsed();
 
         if args.json {
@@ -135,6 +148,8 @@ fn main() -> Result<()> {
                 time_ms: duration.as_millis(),
             };
             println!("{}", serde_json::to_string_pretty(&result)?);
+        } else if args.time_only {
+            println!("{}", duration.as_millis());
         } else {
             println!("\n✅ Factors of n:\n\np =\n{}\n\nq =\n{}\n", p, q);
             if !args.quiet {
