@@ -1,6 +1,6 @@
 [package]
 name = "diffsquare"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 authors = ["Abhrankan Chakrabarti <abhrankan@gmail.com>"]
 description = "Fast and efficient Fermat factorization CLI"
@@ -8,7 +8,7 @@ license = "MIT"
 readme = "README.md"
 repository = "https://github.com/Abhrankan-Chakrabarti/diffsquare"
 homepage = "https://abhrankan-chakrabarti.github.io/diffsquare"
-keywords = ["factorization", "fermat", "cli", "number-theory", "math"]
+keywords = ["factorization", "fermat", "cli", "number-theory", "benchmark", "RSA"]
 categories = ["command-line-utilities", "cryptography", "science"]
 exclude = [".github/*", "target/*"]
 

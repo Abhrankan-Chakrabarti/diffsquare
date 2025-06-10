@@ -9,21 +9,29 @@
 
 ## From the Author
 
-This project is authored by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti) and showcases an efficient implementation of Fermat’s Difference of Squares method for factoring large integers. Written in Rust, it leverages the [`malachite`](https://docs.rs/malachite/) crate for high-performance arbitrary-precision arithmetic.
+Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), this project implements an efficient version of Fermat’s Difference of Squares method for factoring large integers. Written in Rust, it leverages the [`malachite`](https://docs.rs/malachite/) crate for high-performance arbitrary-precision arithmetic.
+
+## Recent Update – v0.3.2  
+
+✅ **New in v0.3.2:** Added test suite for factoring large semiprimes using the `difference_of_squares` method.
+
+---
 
 ### Key Features
+
+`diffsquare` is a fast and lightweight CLI utility for factoring large integers using Fermat’s Difference of Squares method.
 
 * Efficient Fermat's Difference of Squares factorization.
 * Support for decimal, hexadecimal, and scientific notation input.
 * Command-line interface with interactive fallback.
-* Quiet mode (`-q`) for suppressing prompts and clean output.
+* Quiet mode (`-q`) disables interactive prompts and hides intermediate output — useful for piping or scripting.
 * JSON output mode (`--json`) for scripting and automation.
 * `--time-only` flag for displaying only the execution time (useful for benchmarking).
 * Optional control over iteration starting point and precision.
 * Scientific notation used in verbose mode for large integer readability.
 * Execution time displayed after successful factorization.
 
-> GitHub Repository: [Abhrankan-Chakrabarti/diffsquare](https://github.com/Abhrankan-Chakrabarti/diffsquare)
+> GitHub Repository: [`diffsquare`](https://github.com/Abhrankan-Chakrabarti/diffsquare)
 
 ---
 
@@ -45,7 +53,7 @@ export PATH="$HOME/.cargo/bin:$PATH"
 
 ## Build Instructions
 
-To build from source:
+To build from source manually:
 
 ```bash
 git clone https://github.com/Abhrankan-Chakrabarti/diffsquare.git
@@ -83,30 +91,26 @@ diffsquare -n 0xC0FFEE123456789 --json
 
 # 🔹 Show only execution time (no output of factors)
 diffsquare -n 0xCAFED00D1234 --time-only
+
+# 🔹 Check installed version
+diffsquare --version
 ```
 
 ### Command-Line Flags
 
 | Short | Long          | Description                                                      |
 | ----- | ------------- | ---------------------------------------------------------------- |
-| `-n`  | `--mod`       | Number to factor (supports `0x` for hex, or scientific notation) |
+| `-n`  | `--mod`       | Number to factor (supports `0x` for hex or scientific notation)  |
 | `-i`  | `--iter`      | Starting iteration value                                         |
 | `-p`  | `--prec`      | Precision for verbose scientific output                          |
 | `-q`  | `--quiet`     | Suppress prompts and intermediate output                         |
 |       | `--json`      | Print result as JSON (suppresses all other output)               |
 |       | `--time-only` | Display only the execution time (useful for benchmarking)        |
-| `-h`  | `--help`      | Show help                                                        |
+| `-h`  | `--help`      | Show usage help                                                  |
 | `-v`  | `--version`   | Show version                                                     |
 
 ---
 
-## Recent Update – v0.3.1
-
-✅ **New:** `--time-only` flag for displaying only the execution time (useful for benchmarking).
-
----
-
 ## Tags
-
+**Tags**  
 `#RustLang` `#NumberTheory` `#OpenSource` `#BigInteger` `#Cryptography` `#Fermat` `#AbhrankanChakrabarti` `#Malachite`
-

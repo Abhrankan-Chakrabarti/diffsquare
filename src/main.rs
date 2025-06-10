@@ -22,7 +22,7 @@ use std::{
     long_about = None
 )]
 struct Args {
-    /// Number to factor (supports `0x` for hex, or scientific notation)
+    /// Number to factor (supports `0x` for hex or scientific notation)
     #[arg(short = 'n', long = "mod", display_order = 1)]
     modulus: Option<String>,
 
@@ -59,7 +59,7 @@ struct Args {
     )]
     time_only: bool,
 
-    /// Show help
+    /// Show usage help
     #[arg(short = 'h', long = "help", action = ArgAction::Help, display_order = 100)]
     help: Option<bool>,
 
