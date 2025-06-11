@@ -59,6 +59,14 @@ struct Args {
     )]
     time_only: bool,
 
+    /// Read newline-separated input from stdin
+    #[arg(
+        long,
+        help = "Read newline-separated numbers from standard input",
+        display_order = 7
+    )]
+    stdin: bool,
+
     /// Show usage help
     #[arg(short = 'h', long = "help", action = ArgAction::Help, display_order = 100)]
     help: Option<bool>,
@@ -96,6 +104,59 @@ fn parse_bigint(s: &str) -> Result<Integer> {
 fn main() -> Result<()> {
     let args = Args::parse();
 
+    if args.stdin {
+        for line in io::stdin().lines() {
+            let input = line?;
+            if input.trim().is_empty() {
+                continue;
+            }
+
+            let n = parse_bigint(&input)?;
+            let mut iter = Integer::from(1);
+            let prec = args.prec.unwrap_or(0);
+            let start_time = Instant::now();
+
+            if let Some((p, q)) = difference_of_squares(
+                &n,
+                &mut iter,
+                prec,
+                args.quiet || args.json || args.time_only,
+            ) {
+                let duration = start_time.elapsed();
+
+                if args.json {
+                    let result = JsonResult {
+                        modulus: n.to_string(),
+                        factor_1: p.to_string(),
+                        factor_2: q.to_string(),
+                        iterations: iter.to_string(),
+                        time_ms: duration.as_millis(),
+                    };
+                    println!("{}", serde_json::to_string_pretty(&result)?);
+                } else if args.time_only {
+                    println!("{}", duration.as_millis());
+                } else {
+                    println!("\n✅ Factors of {}:\n\np = {}\nq = {}", n, p, q);
+                    if !args.quiet {
+                        println!("⏱️  Execution time: {:?}", duration);
+                    }
+                }
+            } else {
+                if args.json {
+                    eprintln!(
+                        "{{\n  \"modulus\": \"{}\",\n  \"error\": \"Factorization failed\"\n}}",
+                        n
+                    );
+                } else {
+                    eprintln!("❌ Failed to factor {}.", n);
+                }
+            }
+        }
+
+        return Ok(());
+    }
+
+    // Single-modulus mode
     let n = match args.modulus {
         Some(ref val) => parse_bigint(val)?,
         None => {

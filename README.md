@@ -11,9 +11,9 @@
 
 Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), this project implements an efficient version of Fermat’s Difference of Squares method for factoring large integers. Written in Rust, it leverages the [`malachite`](https://docs.rs/malachite/) crate for high-performance arbitrary-precision arithmetic.
 
-## Recent Update – v0.3.2  
+## Recent Update – v0.4.0
 
-✅ **New in v0.3.2:** Added test suite for factoring large semiprimes using the `difference_of_squares` method.
+✅ **New in v0.4.0:** feat(cli): support multiple inputs via --stdin for batch factorization
 
 ---
 
@@ -30,6 +30,7 @@ Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), th
 * Optional control over iteration starting point and precision.
 * Scientific notation used in verbose mode for large integer readability.
 * Execution time displayed after successful factorization.
+* **New:** Batch factorization using `--stdin` to read multiple newline-separated numbers from standard input (e.g., via piping or redirection).
 
 > GitHub Repository: [`diffsquare`](https://github.com/Abhrankan-Chakrabarti/diffsquare)
 
@@ -94,23 +95,33 @@ diffsquare -n 0xCAFED00D1234 --time-only
 
 # 🔹 Check installed version
 diffsquare --version
+
+# 🔹 ♻️ Batch factorization from standard input (stdin)
+# Example: echo or cat piped into the CLI
+echo -e "2761929023323646159\n3189046231347719467" | diffsquare --stdin
+
+# Example: cat a file or redirect any input to stdin
+cat numbers.txt | diffsquare --stdin
 ```
 
 ### Command-Line Flags
 
-| Short | Long          | Description                                                      |
-| ----- | ------------- | ---------------------------------------------------------------- |
-| `-n`  | `--mod`       | Number to factor (supports `0x` for hex or scientific notation)  |
-| `-i`  | `--iter`      | Starting iteration value                                         |
-| `-p`  | `--prec`      | Precision for verbose scientific output                          |
-| `-q`  | `--quiet`     | Suppress prompts and intermediate output                         |
-|       | `--json`      | Print result as JSON (suppresses all other output)               |
-|       | `--time-only` | Display only the execution time (useful for benchmarking)        |
-| `-h`  | `--help`      | Show usage help                                                  |
-| `-v`  | `--version`   | Show version                                                     |
+| Short | Long          | Description                                                     |
+| ----- | ------------- | --------------------------------------------------------------- |
+| `-n`  | `--mod`       | Number to factor (supports `0x` for hex or scientific notation) |
+| `-i`  | `--iter`      | Starting iteration value                                        |
+| `-p`  | `--prec`      | Precision for verbose scientific output                         |
+| `-q`  | `--quiet`     | Suppress prompts and intermediate output                        |
+|       | `--json`      | Print result as JSON (suppresses all other output)              |
+|       | `--time-only` | Display only the execution time (useful for benchmarking)       |
+|       | `--stdin`     | Read newline-separated numbers from standard input              |
+| `-h`  | `--help`      | Show usage help                                                 |
+| `-v`  | `--version`   | Show version                                                    |
 
 ---
 
 ## Tags
-**Tags**  
+
+**Tags**
 `#RustLang` `#NumberTheory` `#OpenSource` `#BigInteger` `#Cryptography` `#Fermat` `#AbhrankanChakrabarti` `#Malachite`
+

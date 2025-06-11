@@ -1,15 +1,29 @@
-## [v0.3.2] - 11-06-2025
+## \[v0.4.0] - 12-06-2025
+
+### Added
+
+* ✅ **New CLI feature: `--stdin` flag**
+
+  * Accepts multiple newline-separated numbers from standard input (stdin).
+  * Enables batch factorization via piping or redirection.
+  * Compatible with scripting workflows across shells.
+  * Fully integrates with `--quiet`, `--json`, and `--time-only` modes.
+
+---
+
+## \[v0.3.2] - 11-06-2025
 
 ### Added
 
 * ✅ **New test suite for large semiprimes**:
+
   * Introduced `big_numbers` test containing 15 products of two 31-bit primes.
   * Ensures accurate factorization for moderately large integers.
   * Helps verify algorithm correctness and performance under larger inputs.
 
 ---
 
-## [v0.3.1] - 10-06-2025
+## \[v0.3.1] - 10-06-2025
 
 ### Added
 
@@ -30,13 +44,13 @@
 
 ---
 
-## [v0.3.0] - 09-06-2025
+## \[v0.3.0] - 09-06-2025
 
 ### Added
 
 * `--json` flag: output factorization results as JSON (suppresses all other output).
 
-  * Includes `"modulus"`, `"p"`, and `"q"` fields.
+  * Includes "modulus", "p", and "q" fields.
   * Outputs a JSON error message if factorization fails.
   * Designed for scripting, automation, and programmatic integration.
 
@@ -47,7 +61,7 @@
 
 ---
 
-## [v0.2.3] - 08-06-2025
+## \[v0.2.3] - 08-06-2025
 
 ### Changed
 
@@ -60,7 +74,7 @@
 
 ---
 
-## [v0.2.2] - 07-06-2025
+## \[v0.2.2] - 07-06-2025
 
 ### Changed
 
@@ -74,15 +88,16 @@
 
 ---
 
-## [v0.2.1] - 06-06-2025
+## \[v0.2.1] - 06-06-2025
 
 * Added quiet mode (`-q`, `--quiet`)
 * Show execution time after factorization
 
 ---
 
-## [v0.2.0] - 05-06-2025
+## \[v0.2.0] - 05-06-2025
 
 * Removed default modulus value; now prompted interactively if not provided via `-n` / `--mod`
 * Introduced `clap` for structured and user-friendly command-line argument parsing
 * Updated README usage examples to reflect removal of default modulus and clarify argument use
+
