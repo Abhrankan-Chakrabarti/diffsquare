@@ -8,7 +8,7 @@ license = "MIT"
 readme = "README.md"
 repository = "https://github.com/Abhrankan-Chakrabarti/diffsquare"
 homepage = "https://abhrankan-chakrabarti.github.io/diffsquare"
-keywords = ["factorization", "fermat", "cli", "number-theory", "benchmark", "RSA"]
+keywords = ["factorization", "fermat", "cli", "number-theory", "RSA"]
 categories = ["command-line-utilities", "cryptography", "science"]
 exclude = [".github/*", "target/*"]
 
