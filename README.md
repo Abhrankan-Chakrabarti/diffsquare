@@ -11,9 +11,9 @@
 
 Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), this project implements an efficient version of Fermat’s Difference of Squares method for factoring large integers. Written in Rust, it leverages the [`malachite`](https://docs.rs/malachite/) crate for high-performance arbitrary-precision arithmetic.
 
-## Recent Update – v0.4.0
+## Recent Update – v0.4.1
 
-✅ **New in v0.4.0:** feat(cli): support multiple inputs via --stdin for batch factorization
+✅ **New in v0.4.1:** fix: set default precision to 30 for --stdin mode
 
 ---
 

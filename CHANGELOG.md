@@ -1,3 +1,15 @@
+## \[v0.4.1] - 13-06-2025
+
+### Fixed
+
+* 🐛 **Bug fix for `--stdin` mode**:
+
+  * Precision was defaulting to `0` when not explicitly provided, causing a runtime panic.
+  * Now defaults to a safe value (`30`) if `--stdin` is used without `--prec`.
+  * Ensures seamless batch input even without verbose precision.
+
+---
+
 ## \[v0.4.0] - 12-06-2025
 
 ### Added

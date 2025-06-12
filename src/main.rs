@@ -14,13 +14,8 @@ use std::{
 
 /// Fast and efficient Fermat factorization CLI
 #[derive(Parser)]
-#[command(
-    version = env!("CARGO_PKG_VERSION"),
-    disable_help_flag = true,
-    disable_version_flag = true,
-    about,
-    long_about = None
-)]
+#[command( version = env!("CARGO_PKG_VERSION"),
+disable_help_flag = true, disable_version_flag = true, about, long_about = None )]
 struct Args {
     /// Number to factor (supports `0x` for hex or scientific notation)
     #[arg(short = 'n', long = "mod", display_order = 1)]
@@ -105,6 +100,11 @@ fn main() -> Result<()> {
     let args = Args::parse();
 
     if args.stdin {
+        let prec = match args.prec {
+            Some(p) if p > 0 => p,
+            _ => 30, // Provide a sensible default if not given
+        };
+
         for line in io::stdin().lines() {
             let input = line?;
             if input.trim().is_empty() {
@@ -113,7 +113,6 @@ fn main() -> Result<()> {
 
             let n = parse_bigint(&input)?;
             let mut iter = Integer::from(1);
-            let prec = args.prec.unwrap_or(0);
             let start_time = Instant::now();
 
             if let Some((p, q)) = difference_of_squares(
@@ -162,8 +161,8 @@ fn main() -> Result<()> {
         None => {
             if args.quiet || args.json || args.time_only {
                 return Err(anyhow!(
-                    "❌ Missing required argument: -n / --mod must be provided in quiet, JSON, or time-only mode"
-                ));
+                "❌ Missing required argument: -n / --mod must be provided in quiet, JSON, or time-only mode"
+            ));
             } else {
                 parse_bigint(&input("Enter the modulus: ")?)?
             }
