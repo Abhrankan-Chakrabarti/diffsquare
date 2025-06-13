@@ -5,6 +5,7 @@ use malachite::{
     base::num::conversion::traits::{FromSciString, FromStringBase},
     Integer,
 };
+use rayon::prelude::*;
 use serde::Serialize;
 use std::{
     io::{self, Write},
@@ -14,8 +15,13 @@ use std::{
 
 /// Fast and efficient Fermat factorization CLI
 #[derive(Parser)]
-#[command( version = env!("CARGO_PKG_VERSION"),
-disable_help_flag = true, disable_version_flag = true, about, long_about = None )]
+#[command(
+    version = env!("CARGO_PKG_VERSION"),
+    disable_help_flag = true,
+    disable_version_flag = true,
+    about,
+    long_about = None
+)]
 struct Args {
     /// Number to factor (supports `0x` for hex or scientific notation)
     #[arg(short = 'n', long = "mod", display_order = 1)]
@@ -62,6 +68,13 @@ struct Args {
     )]
     stdin: bool,
 
+    #[arg(
+        long,
+        help = "Number of threads for parallel factorization (default: 1)",
+        display_order = 8
+    )]
+    threads: Option<usize>,
+
     /// Show usage help
     #[arg(short = 'h', long = "help", action = ArgAction::Help, display_order = 100)]
     help: Option<bool>,
@@ -105,13 +118,28 @@ fn main() -> Result<()> {
             _ => 30, // Provide a sensible default if not given
         };
 
-        for line in io::stdin().lines() {
-            let input = line?;
-            if input.trim().is_empty() {
-                continue;
-            }
+        let inputs: Vec<_> = io::stdin()
+            .lines()
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
+            .filter(|line| !line.trim().is_empty())
+            .collect();
 
-            let n = parse_bigint(&input)?;
+        if let Some(t) = args.threads {
+            rayon::ThreadPoolBuilder::new()
+                .num_threads(t)
+                .build_global()?;
+        }
+
+        inputs.par_iter().for_each(|input| {
+            let n = match parse_bigint(input) {
+                Ok(val) => val,
+                Err(e) => {
+                    eprintln!("❌ Error parsing '{}': {e}", input);
+                    return;
+                }
+            };
+
             let mut iter = Integer::from(1);
             let start_time = Instant::now();
 
@@ -131,7 +159,7 @@ fn main() -> Result<()> {
                         iterations: iter.to_string(),
                         time_ms: duration.as_millis(),
                     };
-                    println!("{}", serde_json::to_string_pretty(&result)?);
+                    println!("{}", serde_json::to_string_pretty(&result).unwrap());
                 } else if args.time_only {
                     println!("{}", duration.as_millis());
                 } else {
@@ -150,7 +178,7 @@ fn main() -> Result<()> {
                     eprintln!("❌ Failed to factor {}.", n);
                 }
             }
-        }
+        });
 
         return Ok(());
     }

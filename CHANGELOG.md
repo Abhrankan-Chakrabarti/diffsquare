@@ -1,3 +1,18 @@
+## \[v0.5.0] - 14-06-2025
+
+### Added
+
+* 🚀 **Rayon parallelism ready**
+
+  * Integrated `rayon = "1.10.0"` dependency for future parallel optimizations.
+  * Prepares the codebase for multithreaded factorization of large inputs or batch jobs.
+
+### Changed
+
+* ⬆️ Version bump: `diffsquare` now at **0.5.0** to reflect API evolution and groundwork for concurrency.
+
+---
+
 ## \[v0.4.1] - 13-06-2025
 
 ### Fixed

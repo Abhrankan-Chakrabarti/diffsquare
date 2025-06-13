@@ -11,9 +11,13 @@
 
 Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), this project implements an efficient version of Fermat’s Difference of Squares method for factoring large integers. Written in Rust, it leverages the [`malachite`](https://docs.rs/malachite/) crate for high-performance arbitrary-precision arithmetic.
 
-## Recent Update – v0.4.1
+## Recent Update – v0.5.0
 
-✅ **New in v0.4.1:** fix: set default precision to 30 for --stdin mode
+🚀 **New in v0.5.0:** parallel factorization using [`rayon`](https://docs.rs/rayon)
+
+* Leverages multiple threads to speed up Fermat's Difference of Squares method.
+* Improved performance on large semiprimes, especially with batch input (`--stdin`).
+* No changes required to existing CLI usage — parallelism is automatic!
 
 ---
 
@@ -22,15 +26,16 @@ Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), th
 `diffsquare` is a fast and lightweight CLI utility for factoring large integers using Fermat’s Difference of Squares method.
 
 * Efficient Fermat's Difference of Squares factorization.
+* Parallelized using [`rayon`](https://docs.rs/rayon) for faster factorization on multi-core systems (since v0.5.0).
 * Support for decimal, hexadecimal, and scientific notation input.
 * Command-line interface with interactive fallback.
 * Quiet mode (`-q`) disables interactive prompts and hides intermediate output — useful for piping or scripting.
 * JSON output mode (`--json`) for scripting and automation.
 * `--time-only` flag for displaying only the execution time (useful for benchmarking).
+* Batch factorization using `--stdin` to read multiple newline-separated numbers from standard input (e.g., via piping or redirection).
 * Optional control over iteration starting point and precision.
 * Scientific notation used in verbose mode for large integer readability.
 * Execution time displayed after successful factorization.
-* **New:** Batch factorization using `--stdin` to read multiple newline-separated numbers from standard input (e.g., via piping or redirection).
 
 > GitHub Repository: [`diffsquare`](https://github.com/Abhrankan-Chakrabarti/diffsquare)
 
@@ -102,6 +107,9 @@ echo -e "2761929023323646159\n3189046231347719467" | diffsquare --stdin
 
 # Example: cat a file or redirect any input to stdin
 cat numbers.txt | diffsquare --stdin
+
+# Example: cat piped into diffsquare with threads and JSON output
+cat numbers.txt | diffsquare --stdin --threads 4 --json
 ```
 
 ### Command-Line Flags
@@ -115,6 +123,7 @@ cat numbers.txt | diffsquare --stdin
 |       | `--json`      | Print result as JSON (suppresses all other output)              |
 |       | `--time-only` | Display only the execution time (useful for benchmarking)       |
 |       | `--stdin`     | Read newline-separated numbers from standard input              |
+|       | `--threads`   | Number of threads for parallel factorization (default: 1)       |
 | `-h`  | `--help`      | Show usage help                                                 |
 | `-v`  | `--version`   | Show version                                                    |
 
