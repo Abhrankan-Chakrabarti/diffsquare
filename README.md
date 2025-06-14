@@ -11,13 +11,13 @@
 
 Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), this project implements an efficient version of Fermat’s Difference of Squares method for factoring large integers. Written in Rust, it leverages the [`malachite`](https://docs.rs/malachite/) crate for high-performance arbitrary-precision arithmetic.
 
-## Recent Update – v0.5.0
+## Recent Update – v0.6.0
 
-🚀 **New in v0.5.0:** parallel factorization using [`rayon`](https://docs.rs/rayon)
+🚀 **New in v0.6.0:** optional file output support
 
-* Leverages multiple threads to speed up Fermat's Difference of Squares method.
-* Improved performance on large semiprimes, especially with batch input (`--stdin`).
-* No changes required to existing CLI usage — parallelism is automatic!
+* New `--output` flag lets you write factorization results to a file.
+* Results are appended if the file already exists.
+* Useful for logging or batch processing outputs.
 
 ---
 
@@ -27,6 +27,7 @@ Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), th
 
 * Efficient Fermat's Difference of Squares factorization.
 * Parallelized using [`rayon`](https://docs.rs/rayon) for faster factorization on multi-core systems (since v0.5.0).
+* Optional file output with `--output` flag to save results (since v0.6.0).
 * Support for decimal, hexadecimal, and scientific notation input.
 * Command-line interface with interactive fallback.
 * Quiet mode (`-q`) disables interactive prompts and hides intermediate output — useful for piping or scripting.
@@ -98,18 +99,15 @@ diffsquare -n 0xC0FFEE123456789 --json
 # 🔹 Show only execution time (no output of factors)
 diffsquare -n 0xCAFED00D1234 --time-only
 
-# 🔹 Check installed version
-diffsquare --version
-
 # 🔹 ♻️ Batch factorization from standard input (stdin)
-# Example: echo or cat piped into the CLI
 echo -e "2761929023323646159\n3189046231347719467" | diffsquare --stdin
 
-# Example: cat a file or redirect any input to stdin
-cat numbers.txt | diffsquare --stdin
-
-# Example: cat piped into diffsquare with threads and JSON output
+# 🔹 Batch factorization with threads and JSON output
 cat numbers.txt | diffsquare --stdin --threads 4 --json
+
+# 🔹 Save output to file (new in v0.6.0)
+diffsquare -n 0xC0FFEE123456789 --output results.txt
+cat numbers.txt | diffsquare --stdin --threads 4 --json --output results.json
 ```
 
 ### Command-Line Flags
@@ -124,6 +122,7 @@ cat numbers.txt | diffsquare --stdin --threads 4 --json
 |       | `--time-only` | Display only the execution time (useful for benchmarking)       |
 |       | `--stdin`     | Read newline-separated numbers from standard input              |
 |       | `--threads`   | Number of threads for parallel factorization (default: 1)       |
+|       | `--output`    | Write results to specified file (appends if exists)             |
 | `-h`  | `--help`      | Show usage help                                                 |
 | `-v`  | `--version`   | Show version                                                    |
 

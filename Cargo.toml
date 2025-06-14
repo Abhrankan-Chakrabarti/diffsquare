@@ -1,6 +1,6 @@
 [package]
 name = "diffsquare"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 authors = ["Abhrankan Chakrabarti <abhrankan@gmail.com>"]
 description = "Fast and efficient Fermat factorization CLI"

@@ -1,3 +1,14 @@
+## \[v0.6.0] - 15-06-2025
+
+### Added
+
+✅ **`--output FILE` flag**
+- Allows saving factorization results to a specified file.
+- Supports both plain text and JSON output (respects `--json` if set).
+- Appends results to the file if it already exists.
+
+---
+
 ## \[v0.5.0] - 14-06-2025
 
 ### Added

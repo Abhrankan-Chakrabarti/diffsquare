@@ -8,6 +8,7 @@ use malachite::{
 use rayon::prelude::*;
 use serde::Serialize;
 use std::{
+    fs::OpenOptions,
     io::{self, Write},
     process::exit,
     time::Instant,
@@ -75,6 +76,14 @@ struct Args {
     )]
     threads: Option<usize>,
 
+    /// Output results to file
+    #[arg(
+        long,
+        help = "Write results to specified file (appends if exists)",
+        display_order = 9
+    )]
+    output: Option<String>,
+
     /// Show usage help
     #[arg(short = 'h', long = "help", action = ArgAction::Help, display_order = 100)]
     help: Option<bool>,
@@ -109,13 +118,26 @@ fn parse_bigint(s: &str) -> Result<Integer> {
     }
 }
 
+fn write_output(file: &str, content: &str) -> Result<()> {
+    let mut f = OpenOptions::new().create(true).append(true).open(file)?;
+    writeln!(f, "{}", content)?;
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let args = Args::parse();
+
+    let write_if_needed = |content: &str| -> Result<()> {
+        if let Some(ref file) = args.output {
+            write_output(file, content)?;
+        }
+        Ok(())
+    };
 
     if args.stdin {
         let prec = match args.prec {
             Some(p) if p > 0 => p,
-            _ => 30, // Provide a sensible default if not given
+            _ => 30,
         };
 
         let inputs: Vec<_> = io::stdin()
@@ -159,24 +181,32 @@ fn main() -> Result<()> {
                         iterations: iter.to_string(),
                         time_ms: duration.as_millis(),
                     };
-                    println!("{}", serde_json::to_string_pretty(&result).unwrap());
+                    let out = serde_json::to_string_pretty(&result).unwrap();
+                    println!("{}", &out);
+                    let _ = write_if_needed(&out);
                 } else if args.time_only {
-                    println!("{}", duration.as_millis());
+                    let out = duration.as_millis().to_string();
+                    println!("{}", &out);
+                    let _ = write_if_needed(&out);
                 } else {
-                    println!("\n✅ Factors of {}:\n\np = {}\nq = {}", n, p, q);
-                    if !args.quiet {
-                        println!("⏱️  Execution time: {:?}", duration);
-                    }
+                    let out = format!(
+                        "\n✅ Factors of {}:\n\np = {}\nq = {}\n⏱️  Execution time: {:?}",
+                        n, p, q, duration
+                    );
+                    println!("{}", &out);
+                    let _ = write_if_needed(&out);
                 }
             } else {
-                if args.json {
-                    eprintln!(
+                let err = if args.json {
+                    format!(
                         "{{\n  \"modulus\": \"{}\",\n  \"error\": \"Factorization failed\"\n}}",
                         n
-                    );
+                    )
                 } else {
-                    eprintln!("❌ Failed to factor {}.", n);
-                }
+                    format!("❌ Failed to factor {}.", n)
+                };
+                eprintln!("{}", &err);
+                let _ = write_if_needed(&err);
             }
         });
 
@@ -189,8 +219,8 @@ fn main() -> Result<()> {
         None => {
             if args.quiet || args.json || args.time_only {
                 return Err(anyhow!(
-                "❌ Missing required argument: -n / --mod must be provided in quiet, JSON, or time-only mode"
-            ));
+                    "❌ Missing required argument: -n / --mod must be provided in quiet, JSON, or time-only mode"
+                ));
             } else {
                 parse_bigint(&input("Enter the modulus: ")?)?
             }
@@ -235,24 +265,32 @@ fn main() -> Result<()> {
                 iterations: iter.to_string(),
                 time_ms: duration.as_millis(),
             };
-            println!("{}", serde_json::to_string_pretty(&result)?);
+            let out = serde_json::to_string_pretty(&result)?;
+            println!("{}", &out);
+            write_if_needed(&out)?;
         } else if args.time_only {
-            println!("{}", duration.as_millis());
+            let out = duration.as_millis().to_string();
+            println!("{}", &out);
+            write_if_needed(&out)?;
         } else {
-            println!("\n✅ Factors of n:\n\np =\n{}\n\nq =\n{}\n", p, q);
-            if !args.quiet {
-                println!("⏱️  Execution time: {:?}", duration);
-            }
+            let out = format!(
+                "\n✅ Factors of n:\n\np =\n{}\n\nq =\n{}\n⏱️  Execution time: {:?}",
+                p, q, duration
+            );
+            println!("{}", &out);
+            write_if_needed(&out)?;
         }
     } else {
-        if args.json {
-            eprintln!(
+        let err = if args.json {
+            format!(
                 "{{\n  \"modulus\": \"{}\",\n  \"error\": \"Factorization failed\"\n}}",
                 n
-            );
+            )
         } else {
-            eprintln!("❌ Failed to factor the given number.");
-        }
+            "❌ Failed to factor the given number.".to_string()
+        };
+        eprintln!("{}", &err);
+        write_if_needed(&err)?;
         exit(1);
     }
 
