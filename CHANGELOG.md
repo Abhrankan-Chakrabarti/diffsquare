@@ -1,3 +1,12 @@
+## \[v0.6.1] - 16-06-2025
+
+### Added
+
+- ✅ Optional `--timeout N` flag to limit maximum time per factorization in milliseconds.
+- ✅ CSV output support via `--csv` flag for easy integration with spreadsheets.
+
+---
+
 ## \[v0.6.0] - 15-06-2025
 
 ### Added

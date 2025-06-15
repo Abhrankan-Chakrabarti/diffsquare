@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use clap::{ArgAction, Parser};
 use diffsquare::factor::difference_of_squares;
+use indicatif::{ProgressBar, ProgressStyle};
 use malachite::{
     base::num::conversion::traits::{FromSciString, FromStringBase},
     Integer,
@@ -10,8 +11,8 @@ use serde::Serialize;
 use std::{
     fs::OpenOptions,
     io::{self, Write},
-    process::exit,
-    time::Instant,
+    thread,
+    time::{Duration, Instant},
 };
 
 /// Fast and efficient Fermat factorization CLI
@@ -37,52 +38,35 @@ struct Args {
     prec: Option<u64>,
 
     /// Suppress prompts and intermediate output
-    #[arg(
-        short,
-        long,
-        help = "Suppress prompts and intermediate output",
-        display_order = 4
-    )]
+    #[arg(short, long, display_order = 4)]
     quiet: bool,
 
     /// Output result in JSON format
-    #[arg(
-        long,
-        help = "Print result as JSON (suppresses all other output)",
-        display_order = 5
-    )]
+    #[arg(long, display_order = 5)]
     json: bool,
 
     /// Show only execution time
-    #[arg(
-        long,
-        help = "Display only the execution time (useful for benchmarking)",
-        display_order = 6
-    )]
+    #[arg(long, display_order = 6)]
     time_only: bool,
 
     /// Read newline-separated input from stdin
-    #[arg(
-        long,
-        help = "Read newline-separated numbers from standard input",
-        display_order = 7
-    )]
+    #[arg(long, display_order = 7)]
     stdin: bool,
 
-    #[arg(
-        long,
-        help = "Number of threads for parallel factorization (default: 1)",
-        display_order = 8
-    )]
+    #[arg(long, display_order = 8)]
     threads: Option<usize>,
 
     /// Output results to file
-    #[arg(
-        long,
-        help = "Write results to specified file (appends if exists)",
-        display_order = 9
-    )]
+    #[arg(long, display_order = 9)]
     output: Option<String>,
+
+    /// Timeout in milliseconds for each factorization
+    #[arg(long, display_order = 10)]
+    timeout: Option<u64>,
+
+    /// Output results as CSV
+    #[arg(long, display_order = 11)]
+    csv: bool,
 
     /// Show usage help
     #[arg(short = 'h', long = "help", action = ArgAction::Help, display_order = 100)]
@@ -91,6 +75,12 @@ struct Args {
     /// Show version
     #[arg(short = 'v', long = "version", action = ArgAction::Version, display_order = 101)]
     version: Option<bool>,
+}
+
+impl Args {
+    fn is_quiet(&self) -> bool {
+        self.quiet || self.json || self.csv
+    }
 }
 
 #[derive(Serialize)]
@@ -124,6 +114,93 @@ fn write_output(file: &str, content: &str) -> Result<()> {
     Ok(())
 }
 
+trait JoinTimeout<T> {
+    fn join_timeout(self, dur: Duration) -> Option<T>;
+}
+
+impl<T: Send + 'static> JoinTimeout<T> for thread::JoinHandle<T> {
+    fn join_timeout(self, dur: Duration) -> Option<T> {
+        use std::sync::mpsc::channel;
+        let (tx, rx) = channel();
+        thread::spawn(move || {
+            if let Ok(val) = self.join() {
+                let _ = tx.send(val);
+            }
+        });
+        rx.recv_timeout(dur).ok()
+    }
+}
+
+fn factor_and_print(
+    n: Integer,
+    iter: Integer,
+    prec: u64,
+    args: &Args,
+    write_if_needed: &dyn Fn(&str) -> Result<()>,
+) -> Result<()> {
+    let start_time = Instant::now();
+    let quiet = args.is_quiet();
+    let mut iter_clone = iter.clone();
+
+    let result = if let Some(ms) = args.timeout {
+        let n_clone = n.clone();
+        let handle = thread::spawn(move || {
+            difference_of_squares(&n_clone, &mut iter_clone, prec, quiet)
+                .map(|(p, q)| (p, q, iter_clone))
+        });
+        handle.join_timeout(Duration::from_millis(ms)).flatten()
+    } else {
+        difference_of_squares(&n, &mut iter_clone, prec, quiet).map(|(p, q)| (p, q, iter_clone))
+    };
+
+    let duration = start_time.elapsed();
+
+    if let Some((p, q, iterations)) = result {
+        if args.csv {
+            let out = format!("{},{},{},{},{}", n, p, q, iterations, duration.as_millis());
+            println!("{}", &out);
+            write_if_needed(&out)?;
+        } else if args.json {
+            let result = JsonResult {
+                modulus: n.to_string(),
+                factor_1: p.to_string(),
+                factor_2: q.to_string(),
+                iterations: iterations.to_string(),
+                time_ms: duration.as_millis(),
+            };
+            let out = serde_json::to_string_pretty(&result)?;
+            println!("{}", &out);
+            write_if_needed(&out)?;
+        } else if args.time_only {
+            let out = duration.as_millis().to_string();
+            println!("{}", &out);
+            write_if_needed(&out)?;
+        } else {
+            let out = format!(
+                "\n✅ Factors of {}:\n\np = {}\nq = {}\n⏱️  Execution time: {:?}",
+                n, p, q, duration
+            );
+            println!("{}", &out);
+            write_if_needed(&out)?;
+        }
+    } else {
+        let err = if args.csv {
+            format!("{},ERROR,ERROR,ERROR,ERROR", n)
+        } else if args.json {
+            format!(
+                "{{\n  \"modulus\": \"{}\",\n  \"error\": \"Factorization failed or timed out\"\n}}",
+                n
+            )
+        } else {
+            format!("❌ Failed to factor {} (timeout or failure).", n)
+        };
+        eprintln!("{}", &err);
+        write_if_needed(&err)?;
+    }
+
+    Ok(())
+}
+
 fn main() -> Result<()> {
     let args = Args::parse();
 
@@ -134,12 +211,9 @@ fn main() -> Result<()> {
         Ok(())
     };
 
-    if args.stdin {
-        let prec = match args.prec {
-            Some(p) if p > 0 => p,
-            _ => 30,
-        };
+    let prec = args.prec.unwrap_or(30);
 
+    if args.stdin {
         let inputs: Vec<_> = io::stdin()
             .lines()
             .collect::<Result<Vec<_>, _>>()?
@@ -153,6 +227,18 @@ fn main() -> Result<()> {
                 .build_global()?;
         }
 
+        let pb = if !args.is_quiet() {
+            let pb = ProgressBar::new(inputs.len() as u64);
+            pb.set_style(
+                ProgressStyle::with_template("{bar:40.cyan/blue} {pos}/{len} [{elapsed_precise}]")
+                    .unwrap()
+                    .progress_chars("=> "),
+            );
+            Some(pb)
+        } else {
+            None
+        };
+
         inputs.par_iter().for_each(|input| {
             let n = match parse_bigint(input) {
                 Ok(val) => val,
@@ -161,137 +247,37 @@ fn main() -> Result<()> {
                     return;
                 }
             };
-
-            let mut iter = Integer::from(1);
-            let start_time = Instant::now();
-
-            if let Some((p, q)) = difference_of_squares(
-                &n,
-                &mut iter,
-                prec,
-                args.quiet || args.json || args.time_only,
-            ) {
-                let duration = start_time.elapsed();
-
-                if args.json {
-                    let result = JsonResult {
-                        modulus: n.to_string(),
-                        factor_1: p.to_string(),
-                        factor_2: q.to_string(),
-                        iterations: iter.to_string(),
-                        time_ms: duration.as_millis(),
-                    };
-                    let out = serde_json::to_string_pretty(&result).unwrap();
-                    println!("{}", &out);
-                    let _ = write_if_needed(&out);
-                } else if args.time_only {
-                    let out = duration.as_millis().to_string();
-                    println!("{}", &out);
-                    let _ = write_if_needed(&out);
-                } else {
-                    let out = format!(
-                        "\n✅ Factors of {}:\n\np = {}\nq = {}\n⏱️  Execution time: {:?}",
-                        n, p, q, duration
-                    );
-                    println!("{}", &out);
-                    let _ = write_if_needed(&out);
-                }
-            } else {
-                let err = if args.json {
-                    format!(
-                        "{{\n  \"modulus\": \"{}\",\n  \"error\": \"Factorization failed\"\n}}",
-                        n
-                    )
-                } else {
-                    format!("❌ Failed to factor {}.", n)
-                };
-                eprintln!("{}", &err);
-                let _ = write_if_needed(&err);
+            let iter = Integer::from(1);
+            let _ = factor_and_print(n, iter, prec, &args, &write_if_needed);
+            if let Some(ref pb) = pb {
+                pb.inc(1);
             }
         });
 
-        return Ok(());
-    }
-
-    // Single-modulus mode
-    let n = match args.modulus {
-        Some(ref val) => parse_bigint(val)?,
-        None => {
-            if args.quiet || args.json || args.time_only {
-                return Err(anyhow!(
-                    "❌ Missing required argument: -n / --mod must be provided in quiet, JSON, or time-only mode"
-                ));
-            } else {
-                parse_bigint(&input("Enter the modulus: ")?)?
-            }
-        }
-    };
-
-    let mut iter = match args.iter {
-        Some(ref val) => parse_bigint(val)?,
-        None => {
-            if args.quiet || args.json || args.time_only {
-                Integer::from(1)
-            } else {
-                parse_bigint(&input("Enter the starting iteration: ")?)?
-            }
-        }
-    };
-
-    let prec = if args.quiet || args.json || args.time_only {
-        args.prec.unwrap_or(0)
-    } else {
-        match args.prec {
-            Some(val) => val + 1,
-            None => input("Enter the verbose precision: ")?.parse::<u64>()? + 1,
-        }
-    };
-
-    let start_time = Instant::now();
-
-    if let Some((p, q)) = difference_of_squares(
-        &n,
-        &mut iter,
-        prec,
-        args.quiet || args.json || args.time_only,
-    ) {
-        let duration = start_time.elapsed();
-
-        if args.json {
-            let result = JsonResult {
-                modulus: n.to_string(),
-                factor_1: p.to_string(),
-                factor_2: q.to_string(),
-                iterations: iter.to_string(),
-                time_ms: duration.as_millis(),
-            };
-            let out = serde_json::to_string_pretty(&result)?;
-            println!("{}", &out);
-            write_if_needed(&out)?;
-        } else if args.time_only {
-            let out = duration.as_millis().to_string();
-            println!("{}", &out);
-            write_if_needed(&out)?;
-        } else {
-            let out = format!(
-                "\n✅ Factors of n:\n\np =\n{}\n\nq =\n{}\n⏱️  Execution time: {:?}",
-                p, q, duration
-            );
-            println!("{}", &out);
-            write_if_needed(&out)?;
+        if let Some(ref pb) = pb {
+            pb.finish_with_message("Done");
         }
     } else {
-        let err = if args.json {
-            format!(
-                "{{\n  \"modulus\": \"{}\",\n  \"error\": \"Factorization failed\"\n}}",
-                n
-            )
+        let n = if let Some(ref m) = args.modulus {
+            parse_bigint(m)?
+        } else if args.is_quiet() {
+            // Quiet mode, but no modulus provided → fail early
+            return Err(anyhow!(
+                "Modulus must be provided in quiet/json/csv mode (prompts are disabled)"
+            ));
         } else {
-            "❌ Failed to factor the given number.".to_string()
+            // Interactive mode → prompt the user
+            let m = input("Modulus: ")?;
+            parse_bigint(&m)?
         };
-        eprintln!("{}", &err);
-        write_if_needed(&err)?;
-        exit(1);
+
+        let iter = if let Some(ref i) = args.iter {
+            parse_bigint(i)?
+        } else {
+            Integer::from(1)
+        };
+
+        factor_and_print(n, iter, prec, &args, &write_if_needed)?;
     }
 
     Ok(())

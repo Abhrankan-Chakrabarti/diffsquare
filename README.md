@@ -11,13 +11,11 @@
 
 Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), this project implements an efficient version of Fermat’s Difference of Squares method for factoring large integers. Written in Rust, it leverages the [`malachite`](https://docs.rs/malachite/) crate for high-performance arbitrary-precision arithmetic.
 
-## Recent Update – v0.6.0
+---
 
-🚀 **New in v0.6.0:** optional file output support
+## Recent Update – v0.6.1
 
-* New `--output` flag lets you write factorization results to a file.
-* Results are appended if the file already exists.
-* Useful for logging or batch processing outputs.
+🚀 **New in v0.6.1:** release: v0.6.1 with progress bar, timeout, and CSV output
 
 ---
 
@@ -28,6 +26,8 @@ Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), th
 * Efficient Fermat's Difference of Squares factorization.
 * Parallelized using [`rayon`](https://docs.rs/rayon) for faster factorization on multi-core systems (since v0.5.0).
 * Optional file output with `--output` flag to save results (since v0.6.0).
+* Optional `--timeout N` flag to limit maximum time per factorization in milliseconds (since v0.6.1).
+* CSV output support via `--csv` flag for easy integration with spreadsheets (since v0.6.1).
 * Support for decimal, hexadecimal, and scientific notation input.
 * Command-line interface with interactive fallback.
 * Quiet mode (`-q`) disables interactive prompts and hides intermediate output — useful for piping or scripting.
@@ -75,7 +75,7 @@ cargo build --release
 Run `diffsquare` interactively or use flags for automation:
 
 ```bash
-# 🔹 Fully interactive: prompts for modulus, iteration, and precision
+# 🔹 Fully interactive: prompts for modulus
 diffsquare
 
 # 🔹 Provide a decimal modulus
@@ -110,6 +110,8 @@ diffsquare -n 0xC0FFEE123456789 --output results.txt
 cat numbers.txt | diffsquare --stdin --threads 4 --json --output results.json
 ```
 
+---
+
 ### Command-Line Flags
 
 | Short | Long          | Description                                                     |
@@ -123,6 +125,8 @@ cat numbers.txt | diffsquare --stdin --threads 4 --json --output results.json
 |       | `--stdin`     | Read newline-separated numbers from standard input              |
 |       | `--threads`   | Number of threads for parallel factorization (default: 1)       |
 |       | `--output`    | Write results to specified file (appends if exists)             |
+|       | `--timeout`   | Timeout in milliseconds for each factorization                  |
+|       | `--csv`       | Output results as CSV                                           |
 | `-h`  | `--help`      | Show usage help                                                 |
 | `-v`  | `--version`   | Show version                                                    |
 
