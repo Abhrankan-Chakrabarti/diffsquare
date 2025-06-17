@@ -45,28 +45,33 @@ struct Args {
     #[arg(long, display_order = 5)]
     json: bool,
 
-    /// Show only execution time
+    /// Output result as CSV
     #[arg(long, display_order = 6)]
+    csv: bool,
+
+    /// Show only execution time
+    #[arg(long, display_order = 7)]
     time_only: bool,
 
     /// Read newline-separated input from stdin
-    #[arg(long, display_order = 7)]
+    #[arg(long, display_order = 8)]
     stdin: bool,
 
-    #[arg(long, display_order = 8)]
+    /// Read newline-separated input from file
+    #[arg(long, display_order = 9)]
+    input: Option<String>,
+
+    /// Number of threads to use (default: 1)
+    #[arg(long, display_order = 10)]
     threads: Option<usize>,
 
     /// Output results to file
-    #[arg(long, display_order = 9)]
+    #[arg(long, display_order = 11)]
     output: Option<String>,
 
     /// Timeout in milliseconds for each factorization
-    #[arg(long, display_order = 10)]
+    #[arg(long, display_order = 12)]
     timeout: Option<u64>,
-
-    /// Output results as CSV
-    #[arg(long, display_order = 11)]
-    csv: bool,
 
     /// Show usage help
     #[arg(short = 'h', long = "help", action = ArgAction::Help, display_order = 100)]
@@ -79,7 +84,7 @@ struct Args {
 
 impl Args {
     fn is_quiet(&self) -> bool {
-        self.quiet || self.json || self.csv
+        self.quiet || self.json || self.csv || self.time_only
     }
 }
 
@@ -175,6 +180,10 @@ fn factor_and_print(
             let out = duration.as_millis().to_string();
             println!("{}", &out);
             write_if_needed(&out)?;
+        } else if args.quiet {
+            let out = format!("{} {}", p, q);
+            println!("{}", &out);
+            write_if_needed(&out)?;
         } else {
             let out = format!(
                 "\n✅ Factors of {}:\n\np = {}\nq = {}\n⏱️  Execution time: {:?}",
@@ -213,13 +222,22 @@ fn main() -> Result<()> {
 
     let prec = args.prec.unwrap_or(30);
 
-    if args.stdin {
-        let inputs: Vec<_> = io::stdin()
-            .lines()
-            .collect::<Result<Vec<_>, _>>()?
-            .into_iter()
-            .filter(|line| !line.trim().is_empty())
-            .collect();
+    if args.stdin || args.input.is_some() {
+        let inputs: Vec<String> = if args.stdin {
+            io::stdin()
+                .lines()
+                .collect::<Result<Vec<_>, _>>()?
+                .into_iter()
+                .filter(|line| !line.trim().is_empty())
+                .collect()
+        } else {
+            let file = args.input.as_ref().unwrap();
+            std::fs::read_to_string(file)?
+                .lines()
+                .map(|s| s.trim().to_string())
+                .filter(|s| !s.is_empty())
+                .collect()
+        };
 
         if let Some(t) = args.threads {
             rayon::ThreadPoolBuilder::new()
@@ -261,12 +279,10 @@ fn main() -> Result<()> {
         let n = if let Some(ref m) = args.modulus {
             parse_bigint(m)?
         } else if args.is_quiet() {
-            // Quiet mode, but no modulus provided → fail early
             return Err(anyhow!(
-                "Modulus must be provided in quiet/json/csv mode (prompts are disabled)"
+                "Modulus must be provided in quiet/json/csv/time-only mode (prompts are disabled)"
             ));
         } else {
-            // Interactive mode → prompt the user
             let m = input("Modulus: ")?;
             parse_bigint(&m)?
         };

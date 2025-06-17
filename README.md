@@ -13,28 +13,48 @@ Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), th
 
 ---
 
-## Recent Update – v0.6.1
+## Recent Update – v0.7.0
 
-🚀 **New in v0.6.1:** release: v0.6.1 with progress bar, timeout, and CSV output
+🚀 **New in v0.7.0:**
+
+* ✅ **`--input <FILE>` flag**
+
+  * Allows reading newline-separated numbers from a specified file.
+  * Supports batch factorization of large input sets via file input.
+  * Fully compatible with `--json`, `--csv`, `--quiet`, `--time-only`, and `--output` modes.
+  * Can be combined with `--threads` to enable parallel factorization.
+
+* ✅ **Thread pool configuration for batch input**
+
+  * `--threads N` lets you control the number of Rayon threads for file or stdin input.
+  * Improves performance tuning for large workloads.
+
+* 🚀 **Progress bar improvements**
+
+  * Displays progress for file and stdin input when not in `--quiet`, `--json`, `--csv`, or `--time-only` mode.
+  * Cleaner and more informative progress display using `indicatif`.
 
 ---
 
-### Key Features
+## Key Features
 
 `diffsquare` is a fast and lightweight CLI utility for factoring large integers using Fermat’s Difference of Squares method.
 
 * Efficient Fermat's Difference of Squares factorization.
 * Parallelized using [`rayon`](https://docs.rs/rayon) for faster factorization on multi-core systems (since v0.5.0).
-* Optional file output with `--output` flag to save results (since v0.6.0).
-* Optional `--timeout N` flag to limit maximum time per factorization in milliseconds (since v0.6.1).
-* CSV output support via `--csv` flag for easy integration with spreadsheets (since v0.6.1).
+* Optional file input for batch factorization (`--input`) (new in v0.7.0).
+* Optional file output with `--output` to save results (since v0.6.0).
+* Control thread count for batch processing with `--threads` (new in v0.7.0).
+* Progress bar for file and stdin batch input (new in v0.7.0).
+* Optional `--timeout N` to limit maximum time per factorization in milliseconds (since v0.6.1).
+* CSV output support via `--csv` flag (since v0.6.1).
+* JSON output mode (`--json`) for scripting and automation (since v0.3.0).
+* Quiet mode (`-q`) disables prompts and hides intermediate output — ideal for scripting.
+* `--time-only` flag for showing only execution time — useful for benchmarking (since v0.3.1).
+* Batch factorization via `--stdin` (since v0.4.0).
 * Support for decimal, hexadecimal, and scientific notation input.
 * Command-line interface with interactive fallback.
-* Quiet mode (`-q`) disables interactive prompts and hides intermediate output — useful for piping or scripting.
-* JSON output mode (`--json`) for scripting and automation.
-* `--time-only` flag for displaying only the execution time (useful for benchmarking).
-* Batch factorization using `--stdin` to read multiple newline-separated numbers from standard input (e.g., via piping or redirection).
-* Optional control over iteration starting point and precision.
+* Optional control over iteration starting point (`--iter`) and precision (`--prec`).
 * Scientific notation used in verbose mode for large integer readability.
 * Execution time displayed after successful factorization.
 
@@ -84,30 +104,32 @@ diffsquare -n 17976931348623159077293051907890247336179769789423065727343008115
 # 🔹 Provide a hexadecimal modulus
 diffsquare -n 0xDEADBEEFCAFEBABE1234567890
 
-# 🔹 Specify starting iteration (modulus still required)
+# 🔹 Specify starting iteration
 diffsquare -n 0xC0FFEE123456789 -i 1000000
 
 # 🔹 Use custom precision for verbose scientific output
 diffsquare -n 0xABCD1234 -p 30
 
-# 🔹 Combine all options and suppress output (precision not required in quiet mode)
-diffsquare -n 0xCAFED00D1234 -i 50000 -q
+# 🔹 Quiet mode, suppress intermediate output
+diffsquare -n 0xCAFED00D1234 -q
 
-# 🔹 JSON output for scripting and automation
+# 🔹 JSON output for scripting
 diffsquare -n 0xC0FFEE123456789 --json
 
-# 🔹 Show only execution time (no output of factors)
+# 🔹 Show only execution time (for benchmarking)
 diffsquare -n 0xCAFED00D1234 --time-only
 
-# 🔹 ♻️ Batch factorization from standard input (stdin)
+# 🔹 Batch factorization from stdin
 echo -e "2761929023323646159\n3189046231347719467" | diffsquare --stdin
 
-# 🔹 Batch factorization with threads and JSON output
-cat numbers.txt | diffsquare --stdin --threads 4 --json
+# 🔹 Batch factorization from file input
+diffsquare --input numbers.txt
 
-# 🔹 Save output to file (new in v0.6.0)
-diffsquare -n 0xC0FFEE123456789 --output results.txt
-cat numbers.txt | diffsquare --stdin --threads 4 --json --output results.json
+# 🔹 Batch with threads and JSON output
+diffsquare --input numbers.txt --threads 4 --json
+
+# 🔹 Batch with CSV output and save to file
+diffsquare --input numbers.txt --csv --output results.csv
 ```
 
 ---
@@ -120,13 +142,14 @@ cat numbers.txt | diffsquare --stdin --threads 4 --json --output results.json
 | `-i`  | `--iter`      | Starting iteration value                                        |
 | `-p`  | `--prec`      | Precision for verbose scientific output                         |
 | `-q`  | `--quiet`     | Suppress prompts and intermediate output                        |
-|       | `--json`      | Print result as JSON (suppresses all other output)              |
-|       | `--time-only` | Display only the execution time (useful for benchmarking)       |
-|       | `--stdin`     | Read newline-separated numbers from standard input              |
-|       | `--threads`   | Number of threads for parallel factorization (default: 1)       |
-|       | `--output`    | Write results to specified file (appends if exists)             |
+|       | `--json`      | Output result in JSON format                                    |
+|       | `--csv`       | Output result as CSV                                            |
+|       | `--time-only` | Show only execution time                                        |
+|       | `--stdin`     | Read newline-separated input from stdin                         |
+|       | `--input`     | Read newline-separated input from file                          |
+|       | `--threads`   | Number of threads to use (default: 1)                           |
+|       | `--output`    | Output results to file                                          |
 |       | `--timeout`   | Timeout in milliseconds for each factorization                  |
-|       | `--csv`       | Output results as CSV                                           |
 | `-h`  | `--help`      | Show usage help                                                 |
 | `-v`  | `--version`   | Show version                                                    |
 

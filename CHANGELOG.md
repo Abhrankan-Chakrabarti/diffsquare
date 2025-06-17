@@ -1,3 +1,25 @@
+## \[v0.7.0] - 17-06-2025
+
+### Added
+
+- ✅ **`--input <FILE>` flag**
+  - Allows reading newline-separated numbers from a specified file.
+  - Supports batch factorization of large input sets via file input.
+  - Fully compatible with `--json`, `--csv`, `--quiet`, `--time-only`, and output file modes.
+  - Can be combined with `--threads` to enable parallel factorization.
+
+- ✅ **Thread pool configuration for file or stdin input**
+  - Supports `--threads N` to control the number of Rayon threads for batch factorization.
+  - Ensures better performance tuning for large input sets.
+
+### Changed
+
+- 🚀 **Progress bar enhancements**
+  - Displays progress for file and stdin input **only when not in quiet, json, csv, or time-only mode**.
+  - Cleaner, more informative progress display using `indicatif`.
+
+---
+
 ## \[v0.6.1] - 16-06-2025
 
 ### Added
