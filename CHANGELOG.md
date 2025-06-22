@@ -1,3 +1,22 @@
+## \[v0.7.1] - 22-06-2025
+
+### Changed
+
+- ✅ **Clarified `--threads` behavior**
+  - `--threads` now explicitly applies **only** in `--stdin` or `--input` modes for batch factorization.
+  - Removed misleading claim that default is 1; default follows Rayon’s default (number of logical CPUs).
+  - Updated help text and README for accuracy.
+
+- ✅ **Improved input handling**
+  - Prevents unintended interactive prompts when input is piped without `--stdin` or `--input`.
+  - Better error reporting when no modulus is provided in quiet, JSON, CSV, or time-only modes.
+
+- 📝 **Documentation**
+  - Updated internal comments for clarity.
+  - Adjusted README to reflect actual `--threads` behavior.
+
+---
+
 ## \[v0.7.0] - 17-06-2025
 
 ### Added

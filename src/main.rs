@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use atty;
 use clap::{ArgAction, Parser};
 use diffsquare::factor::difference_of_squares;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -61,7 +62,7 @@ struct Args {
     #[arg(long, display_order = 9)]
     input: Option<String>,
 
-    /// Number of threads to use (default: 1)
+    /// Number of threads for batch factorization (`--stdin` / `--input`) (default: logical CPUs)
     #[arg(long, display_order = 10)]
     threads: Option<usize>,
 
@@ -278,6 +279,11 @@ fn main() -> Result<()> {
     } else {
         let n = if let Some(ref m) = args.modulus {
             parse_bigint(m)?
+        } else if !atty::is(atty::Stream::Stdin) {
+            // Read piped input as a single line
+            let mut s = String::new();
+            io::stdin().read_line(&mut s)?;
+            parse_bigint(s.trim())?
         } else if args.is_quiet() {
             return Err(anyhow!(
                 "Modulus must be provided in quiet/json/csv/time-only mode (prompts are disabled)"

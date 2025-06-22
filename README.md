@@ -13,26 +13,22 @@ Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), th
 
 ---
 
-## Recent Update – v0.7.0
+## Recent Update – v0.7.1
 
-🚀 **New in v0.7.0:**
+🚀 **New in v0.7.1:**
 
-* ✅ **`--input <FILE>` flag**
+* ✅ **Clarified `--threads` behavior**
+  * The `--threads` flag now explicitly applies only to batch factorization modes (`--stdin` or `--input`).
+  * Default thread count matches the number of logical CPUs when batch mode is active (Rayon default).
+  * Updated README and help text to accurately reflect this behavior.
 
-  * Allows reading newline-separated numbers from a specified file.
-  * Supports batch factorization of large input sets via file input.
-  * Fully compatible with `--json`, `--csv`, `--quiet`, `--time-only`, and `--output` modes.
-  * Can be combined with `--threads` to enable parallel factorization.
+* ✅ **Improved handling of single modulus input**
+  * Prevents accidental fallback to interactive mode when input is piped without `--stdin` or `--input`.
+  * Ensures cleaner error messages in quiet, JSON, CSV, or time-only modes when no modulus is provided.
 
-* ✅ **Thread pool configuration for batch input**
-
-  * `--threads N` lets you control the number of Rayon threads for file or stdin input.
-  * Improves performance tuning for large workloads.
-
-* 🚀 **Progress bar improvements**
-
-  * Displays progress for file and stdin input when not in `--quiet`, `--json`, `--csv`, or `--time-only` mode.
-  * Cleaner and more informative progress display using `indicatif`.
+* 🚀 **Miscellaneous**
+  * Minor code cleanup and documentation refinements.
+  * Updated internal comments for better maintainability.
 
 ---
 
@@ -136,22 +132,22 @@ diffsquare --input numbers.txt --csv --output results.csv
 
 ### Command-Line Flags
 
-| Short | Long          | Description                                                     |
-| ----- | ------------- | --------------------------------------------------------------- |
-| `-n`  | `--mod`       | Number to factor (supports `0x` for hex or scientific notation) |
-| `-i`  | `--iter`      | Starting iteration value                                        |
-| `-p`  | `--prec`      | Precision for verbose scientific output                         |
-| `-q`  | `--quiet`     | Suppress prompts and intermediate output                        |
-|       | `--json`      | Output result in JSON format                                    |
-|       | `--csv`       | Output result as CSV                                            |
-|       | `--time-only` | Show only execution time                                        |
-|       | `--stdin`     | Read newline-separated input from stdin                         |
-|       | `--input`     | Read newline-separated input from file                          |
-|       | `--threads`   | Number of threads to use (default: 1)                           |
-|       | `--output`    | Output results to file                                          |
-|       | `--timeout`   | Timeout in milliseconds for each factorization                  |
-| `-h`  | `--help`      | Show usage help                                                 |
-| `-v`  | `--version`   | Show version                                                    |
+| Short | Long          | Description                                                                               |
+| ----- | ------------- | ----------------------------------------------------------------------------------------- |
+| `-n`  | `--mod`       | Number to factor (supports `0x` for hex or scientific notation)                           |
+| `-i`  | `--iter`      | Starting iteration value                                                                  |
+| `-p`  | `--prec`      | Precision for verbose scientific output                                                   |
+| `-q`  | `--quiet`     | Suppress prompts and intermediate output                                                  |
+|       | `--json`      | Output result in JSON format                                                              |
+|       | `--csv`       | Output result as CSV                                                                      |
+|       | `--time-only` | Show only execution time                                                                  |
+|       | `--stdin`     | Read newline-separated input from stdin                                                   |
+|       | `--input`     | Read newline-separated input from file                                                    |
+|       | `--threads`   | Number of threads for batch factorization (`--stdin` / `--input`) (default: logical CPUs) |
+|       | `--output`    | Output results to file                                                                    |
+|       | `--timeout`   | Timeout in milliseconds for each factorization                                            |
+| `-h`  | `--help`      | Show usage help                                                                           |
+| `-v`  | `--version`   | Show version                                                                              |
 
 ---
 

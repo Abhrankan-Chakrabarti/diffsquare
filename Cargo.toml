@@ -1,6 +1,6 @@
 [package]
 name = "diffsquare"
-version = "0.7.0"
+version = "0.7.1"
 edition = "2021"
 authors = ["Abhrankan Chakrabarti <abhrankan@gmail.com>"]
 description = "Fast and efficient Fermat factorization CLI"
@@ -20,6 +20,7 @@ anyhow = "1.0.98"
 malachite = { version = "0.6.1", default-features = false, features = ["malachite-nz", "naturals_and_integers"] }
 rayon = "1.10.0"
 indicatif = "0.17" # progress bar
+atty = "0.2"       # detect piped/redirection stdin
 
 [package.metadata]
 documentation = "https://docs.rs/diffsquare"
