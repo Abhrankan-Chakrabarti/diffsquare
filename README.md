@@ -13,22 +13,16 @@ Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), th
 
 ---
 
-## Recent Update – v0.7.1
+## Recent Update – v0.8.0
 
-🚀 **New in v0.7.1:**
+🚀 **New in v0.8.0:**
 
-* ✅ **Clarified `--threads` behavior**
-  * The `--threads` flag now explicitly applies only to batch factorization modes (`--stdin` or `--input`).
-  * Default thread count matches the number of logical CPUs when batch mode is active (Rayon default).
-  * Updated README and help text to accurately reflect this behavior.
+* ✅ **Improved piped input support**
 
-* ✅ **Improved handling of single modulus input**
-  * Prevents accidental fallback to interactive mode when input is piped without `--stdin` or `--input`.
-  * Ensures cleaner error messages in quiet, JSON, CSV, or time-only modes when no modulus is provided.
-
-* 🚀 **Miscellaneous**
-  * Minor code cleanup and documentation refinements.
-  * Updated internal comments for better maintainability.
+  * Automatically detects when input is piped (non-interactive stdin).
+  * Gracefully reads multi-line numbers split with backslashes (e.g., from `bc`).
+  * Allows seamless integration with tools like `bc`, `openssl`, etc.
+  * Fully compatible with all output modes (`--json`, `--csv`, `--quiet`, `--time-only`).
 
 ---
 
@@ -95,7 +89,7 @@ Run `diffsquare` interactively or use flags for automation:
 diffsquare
 
 # 🔹 Provide a decimal modulus
-diffsquare -n 17976931348623159077293051907890247336179769789423065727343008115
+diffsquare -n 179769313486231590772930519078902473361797697894230657273430081157732675805505620686985379449212982959585501387537164015710139858647833778606925583497541085196591615128057575940752635007475935288710823649949940771895617054361149474865046711015101563940680527540071584560878577663743040086340742855278549092581
 
 # 🔹 Provide a hexadecimal modulus
 diffsquare -n 0xDEADBEEFCAFEBABE1234567890
@@ -114,6 +108,9 @@ diffsquare -n 0xC0FFEE123456789 --json
 
 # 🔹 Show only execution time (for benchmarking)
 diffsquare -n 0xCAFED00D1234 --time-only
+
+# 🔹 Factor 2^32 + 1 (Fermat number F5) from piped input
+echo "2^32 + 1" | bc | diffsquare
 
 # 🔹 Batch factorization from stdin
 echo -e "2761929023323646159\n3189046231347719467" | diffsquare --stdin

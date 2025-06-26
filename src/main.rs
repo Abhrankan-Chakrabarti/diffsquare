@@ -11,7 +11,7 @@ use rayon::prelude::*;
 use serde::Serialize;
 use std::{
     fs::OpenOptions,
-    io::{self, Write},
+    io::{self, Read, Write},
     thread,
     time::{Duration, Instant},
 };
@@ -280,10 +280,11 @@ fn main() -> Result<()> {
         let n = if let Some(ref m) = args.modulus {
             parse_bigint(m)?
         } else if !atty::is(atty::Stream::Stdin) {
-            // Read piped input as a single line
+            // Read full piped input (supports multi-line with backslashes)
             let mut s = String::new();
-            io::stdin().read_line(&mut s)?;
-            parse_bigint(s.trim())?
+            io::stdin().read_to_string(&mut s)?;
+            let cleaned = s.replace("\\\n", "").replace('\n', "").trim().to_string();
+            parse_bigint(&cleaned)?
         } else if args.is_quiet() {
             return Err(anyhow!(
                 "Modulus must be provided in quiet/json/csv/time-only mode (prompts are disabled)"

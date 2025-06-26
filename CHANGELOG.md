@@ -1,3 +1,14 @@
+## \[v0.8.0] - 26-06-2025
+
+### Added
+
+- ✅ **Improved piped input support**
+  - Automatically reads full stdin when piped input is detected.
+  - Handles multi-line inputs split by backslashes (e.g., `bc` output).
+  - Enhances scriptability and integration with tools like `bc`, `openssl`, etc.
+
+---
+
 ## \[v0.7.1] - 22-06-2025
 
 ### Changed
