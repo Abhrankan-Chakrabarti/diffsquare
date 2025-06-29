@@ -277,30 +277,54 @@ fn main() -> Result<()> {
             pb.finish_with_message("Done");
         }
     } else {
-        let n = if let Some(ref m) = args.modulus {
-            parse_bigint(m)?
-        } else if !atty::is(atty::Stream::Stdin) {
-            // Read full piped input (supports multi-line with backslashes)
-            let mut s = String::new();
-            io::stdin().read_to_string(&mut s)?;
-            let cleaned = s.replace("\\\n", "").replace('\n', "").trim().to_string();
-            parse_bigint(&cleaned)?
+        if args.modulus.is_some() || !atty::is(atty::Stream::Stdin) {
+            // Single run: either from flag or piped input
+            let n = if let Some(ref m) = args.modulus {
+                parse_bigint(m)?
+            } else {
+                let mut s = String::new();
+                io::stdin().read_to_string(&mut s)?;
+                let cleaned = s.replace("\\\n", "").replace('\n', "").trim().to_string();
+                parse_bigint(&cleaned)?
+            };
+
+            let iter = if let Some(ref i) = args.iter {
+                parse_bigint(i)?
+            } else {
+                Integer::from(1)
+            };
+
+            factor_and_print(n, iter, prec, &args, &write_if_needed)?;
         } else if args.is_quiet() {
             return Err(anyhow!(
                 "Modulus must be provided in quiet/json/csv/time-only mode (prompts are disabled)"
             ));
         } else {
-            let m = input("Modulus: ")?;
-            parse_bigint(&m)?
-        };
+            // Interactive loop
+            loop {
+                let m = input("Modulus (or type 'exit' to quit): ")?;
+                if m.eq_ignore_ascii_case("exit") || m.eq_ignore_ascii_case("quit") {
+                    println!("👋 Exiting diffsquare.");
+                    break;
+                }
 
-        let iter = if let Some(ref i) = args.iter {
-            parse_bigint(i)?
-        } else {
-            Integer::from(1)
-        };
+                let n = match parse_bigint(&m) {
+                    Ok(val) => val,
+                    Err(e) => {
+                        eprintln!("❌ Invalid input: {e}");
+                        continue;
+                    }
+                };
 
-        factor_and_print(n, iter, prec, &args, &write_if_needed)?;
+                let iter = if let Some(ref i) = args.iter {
+                    parse_bigint(i)?
+                } else {
+                    Integer::from(1)
+                };
+
+                factor_and_print(n, iter.clone(), prec, &args, &write_if_needed)?;
+            }
+        }
     }
 
     Ok(())

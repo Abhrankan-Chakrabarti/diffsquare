@@ -1,3 +1,14 @@
+## \[v0.9.0] - 29-06-2025
+
+### Added
+
+- 🧮 **Persistent interactive mode**
+  - When run without flags or piped input, `diffsquare` now enters a continuous interactive loop.
+  - Prompts for a modulus, factors it, then prompts again — until the user types `exit` or `quit`.
+  - Greatly improves usability for exploratory or classroom-style usage.
+
+---
+
 ## \[v0.8.0] - 26-06-2025
 
 ### Added

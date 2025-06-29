@@ -13,16 +13,15 @@ Created by [Abhrankan Chakrabarti](https://github.com/Abhrankan-Chakrabarti), th
 
 ---
 
-## Recent Update – v0.8.0
+## Recent Update – v0.9.0
 
-🚀 **New in v0.8.0:**
+🧮 **Persistent interactive mode**
 
-* ✅ **Improved piped input support**
-
-  * Automatically detects when input is piped (non-interactive stdin).
-  * Gracefully reads multi-line numbers split with backslashes (e.g., from `bc`).
-  * Allows seamless integration with tools like `bc`, `openssl`, etc.
-  * Fully compatible with all output modes (`--json`, `--csv`, `--quiet`, `--time-only`).
+- When `diffsquare` is run without any flags or piped input, it now enters a continuous **interactive loop**.
+- After each factorization, it prompts again for a new modulus.
+- To exit the loop, the user can type `exit` or `quit`.
+- Designed for **exploratory usage**, teaching, and manual testing.
+- Fully compatible with all previous interactive features.
 
 ---
 
